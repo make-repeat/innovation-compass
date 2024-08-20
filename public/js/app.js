@@ -151,7 +151,6 @@ const quizApp = {
 
     getSectionProgress: function () {
         // Go through each question to determine the progress
-        // inside of the current section
         let sectionProgress = 0;
         for (let i = 0; i < this.currentFrame; i++) {
             console.log(1);
