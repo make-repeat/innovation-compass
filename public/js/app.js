@@ -40,8 +40,15 @@ const quizApp = {
         // Content
         this.hooks.question = document.querySelector('[data-question-body]');
         this.hooks.title = document.querySelector('[data-title-body]');
-        this.hooks.category = document.querySelector('[data-category-body]');
-        this.hooks.progress = document.querySelector('[data-progress-bar-fill]');
+        this.hooks.category = {
+            'body': document.querySelector('[data-category-body]'),
+            'number': document.querySelector('[data-category-number]')
+        };
+        this.hooks.progress = {
+            'bar': document.querySelector('[data-progress-bar-fill]'),
+            'percent': document.querySelector('[data-progress-percent]'),
+        };
+        this.hooks.blurb = document.querySelector('[data-blurb-body]');
     },
 
     startQuiz: function () {
@@ -98,9 +105,12 @@ const quizApp = {
         this.showElement(this.hooks.templates.question);
 
         this.hooks.question.innerHTML = frame.activity_name;
-        this.hooks.category.innerHTML = frame.category;
-
-        this.hooks.progress.style.width = ((this.getSectionProgress() + 1) / this.sectionData[frame.category]) * 100 + '%';
+        this.hooks.category.body.innerHTML = frame.category;
+        this.hooks.category.number.innerHTML = this.getSectionNumber() + ' of ' + Object.keys(this.sectionData).length;
+        this.hooks.blurb.innerHTML = frame.blurb;
+        let percentage = ((this.getSectionProgress() + 1) / this.sectionData[frame.category]) * 100;
+        this.hooks.progress.bar.style.width = percentage + '%';
+        this.hooks.progress.percent.innerHTML = Math.round(percentage) + '%';
         const existingAnswer = this.quiz[this.currentFrame].answer;
         if (existingAnswer) {
             document.querySelector("[data-answer-" + existingAnswer + "]").checked = true;
@@ -153,14 +163,23 @@ const quizApp = {
         // Go through each question to determine the progress
         let sectionProgress = 0;
         for (let i = 0; i < this.currentFrame; i++) {
-            console.log(1);
             if (this.quiz[i].weighting) {
                 sectionProgress++;
             } else {
                 sectionProgress = 0;
             }
         }
-        return sectionProgress;
+        return sectionProgress - 1;
+    },
+
+    getSectionNumber: function () {
+        let sectionNumber = 0;
+        for (let i = 0; i < this.currentFrame; i++) {
+            if (!this.quiz[i].weighting) {
+                sectionNumber++;
+            }
+        }
+        return sectionNumber;
     },
 
     hideElement: function (element) {

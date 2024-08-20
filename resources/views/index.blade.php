@@ -32,8 +32,7 @@
 		}
 	</style>
 
-	<section style="background-color:#5d62f4"
-		class="bb-section-1 purple">
+	<section class="bb-section-1 purple">
 		<div class="bb-breadcrumbs-div">
 			<div class="bb-breadcrumb-text">Impact</div>
 		</div>
@@ -53,6 +52,8 @@
 			<div data-template-question
 				class="hidden">
 				<span>Category: <span data-category-body></span></span>
+				<div><span data-category-number></span> complete</div>
+				<div><span data-progress-percent></span> complete</div>
 				<!-- progress bar -->
 				<div class="progress-bar">
 					<div class="progress-bar-fill"
@@ -60,11 +61,12 @@
 				</div>
 
 				<h1 data-question-body></h1>
+				<div data-blurb-body></div>
 				<div class="bb-question-div">
 					<!-- radio buttons for the answers -->
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer0"
+							name="answer"
 							value="0"
 							data-answer
 							data-answer-0>
@@ -72,7 +74,7 @@
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer1"
+							name="answer"
 							value="1"
 							data-answer
 							data-answer-1>
@@ -80,7 +82,7 @@
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer2"
+							name="answer"
 							value="2"
 							data-answer
 							data-answer-2>
@@ -88,7 +90,7 @@
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer3"
+							name="answer"
 							value="3"
 							data-answer
 							data-answer-3>
@@ -96,7 +98,7 @@
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer4s"
+							name="answer"
 							value="4"
 							data-answer
 							data-answer-4>
