@@ -40,6 +40,8 @@ const quizApp = {
         // Content
         this.hooks.question = document.querySelector('[data-question-body]');
         this.hooks.title = document.querySelector('[data-title-body]');
+        this.hooks.category = document.querySelector('[data-category-body]');
+        this.hooks.progress = document.querySelector('[data-progress-bar-fill]');
     },
 
     startQuiz: function () {
@@ -58,10 +60,9 @@ const quizApp = {
     nextFrame: function () {
         // Get current answer from radio buttons
         const frame = this.quiz[this.currentFrame];
-        console.log(frame);
+
         if (frame.weighting) {
             const answer = document.querySelector('[data-answer]:checked');
-
             if (answer) {
                 this.quiz[this.currentFrame].answer = answer.value;
                 this.currentFrame++;
@@ -76,35 +77,51 @@ const quizApp = {
     },
 
     renderFrame: function () {
-        console.log('currentFrame:' + this.currentFrame);
-        const frame = this.quiz[this.currentFrame];
 
-        if (frame.weighting) {
-            this.hideElement(this.hooks.templates.title);
-            this.showElement(this.hooks.templates.question);
-
-            this.hooks.question.innerHTML = frame.activity_name;
-            const existingAnswer = this.quiz[this.currentFrame].answer;
-            if (existingAnswer) {
-                console.log('existing: ' + existingAnswer);
-                document.querySelector("[data-answer-" + existingAnswer + "]").checked = true;
+        if (this.currentFrame < this.quiz.length) {
+            const frame = this.quiz[this.currentFrame];
+            if (frame.weighting) { // If the frame is a question
+                this.renderQuestion(frame);
             } else {
-                let checked_answer = document.querySelector('[data-answer]:checked');
-                if (checked_answer) {
-                    checked_answer.checked = false;
-                }
+                this.renderTitle(frame);
             }
-        } else {
+        } else { // If the quiz is finished
             this.hideElement(this.hooks.templates.question);
-            this.showElement(this.hooks.templates.title);
-            this.hooks.title.innerHTML = frame.activity_name;
-            if (frame.category == 'community') {
-                this.hooks.title.style.background = '#7C3AED';
-            } else if (frame.category == 'entrepreneurship') {
-                this.hooks.title.style.background = '#34D399';
-            } else if (frame.category == 'impact') {
-                this.hooks.title.style.background = '#F59E0B';
+            this.hideElement(this.hooks.templates.title);
+            this.showElement(this.hooks.templates.results);
+        }
+
+    },
+
+    renderQuestion: function (frame) {
+        this.hideElement(this.hooks.templates.title);
+        this.showElement(this.hooks.templates.question);
+
+        this.hooks.question.innerHTML = frame.activity_name;
+        this.hooks.category.innerHTML = frame.category;
+
+        this.hooks.progress.style.width = ((this.getSectionProgress() + 1) / this.sectionData[frame.category]) * 100 + '%';
+        const existingAnswer = this.quiz[this.currentFrame].answer;
+        if (existingAnswer) {
+            document.querySelector("[data-answer-" + existingAnswer + "]").checked = true;
+        } else {
+            let checked_answer = document.querySelector('[data-answer]:checked');
+            if (checked_answer) {
+                checked_answer.checked = false;
             }
+        }
+    },
+
+    renderTitle: function (frame) {
+        this.hideElement(this.hooks.templates.question);
+        this.showElement(this.hooks.templates.title);
+        this.hooks.title.innerHTML = frame.activity_name;
+        if (frame.category == 'community') {
+            this.hooks.title.style.background = '#7C3AED';
+        } else if (frame.category == 'entrepreneurship') {
+            this.hooks.title.style.background = '#34D399';
+        } else if (frame.category == 'impact') {
+            this.hooks.title.style.background = '#F59E0B';
         }
     },
 
@@ -130,6 +147,21 @@ const quizApp = {
             }
         });
         this.sectionData = sectionData;
+    },
+
+    getSectionProgress: function () {
+        // Go through each question to determine the progress
+        // inside of the current section
+        let sectionProgress = 0;
+        for (let i = 0; i < this.currentFrame; i++) {
+            console.log(1);
+            if (this.quiz[i].weighting) {
+                sectionProgress++;
+            } else {
+                sectionProgress = 0;
+            }
+        }
+        return sectionProgress;
     },
 
     hideElement: function (element) {

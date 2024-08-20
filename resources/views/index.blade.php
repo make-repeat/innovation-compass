@@ -18,16 +18,17 @@
 			display: none !important;
 		}
 
-		.section-community {
-			background-color: #5d62f4;
+		.progress-bar {
+			width: 300px;
+			height: 20px;
+			background-color: #e0e0e0;
+			margin: 20px 0;
 		}
 
-		.section-entrepreneurship {
-			background-color: #8e43e7;
-		}
-
-		.section-impact {
-			background-color: #42b3f4;
+		.progress-bar-fill {
+			height: 20px;
+			background-color: red;
+			width: 20%;
 		}
 	</style>
 
@@ -41,62 +42,74 @@
 			<div data-template-start>
 				<h1>Start</h1>
 				<p>This is the start page.</p>
-
-				<!-- button to go to the next page in js app -->
 				<button data-start-button>Start Quiz</button>
+			</div>
+			<div data-template-title
+				class="hidden">
+				<h1 data-title-body></h1>
+				<button data-prev-button>Prev</button>
+				<button data-next-button>Next</button>
 			</div>
 			<div data-template-question
 				class="hidden">
+				<span>Category: <span data-category-body></span></span>
+				<!-- progress bar -->
+				<div class="progress-bar">
+					<div class="progress-bar-fill"
+						data-progress-bar-fill></div>
+				</div>
+
 				<h1 data-question-body></h1>
 				<div class="bb-question-div">
 					<!-- radio buttons for the answers -->
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer"
+							name="answer0"
 							value="0"
 							data-answer
 							data-answer-0>
-						<label data-answer>Unprepared</label>
+						<label for="">Unprepared</label>
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer"
+							name="answer1"
 							value="1"
 							data-answer
 							data-answer-1>
-						<label data-answer>Somewhat Prepared</label>
+						<label>Somewhat Prepared</label>
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer"
+							name="answer2"
 							value="2"
 							data-answer
 							data-answer-2>
-						<label data-answer>Adequately Prepared</label>
+						<label>Adequately Prepared</label>
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer"
+							name="answer3"
 							value="3"
+							data-answer
 							data-answer-3>
-						<label data-answer>Very Prepared</label>
+						<label>Very Prepared</label>
 					</div>
 					<div class="bb-question-option">
 						<input type="radio"
-							name="answer"
+							name="answer4s"
 							value="4"
+							data-answer
 							data-answer-4>
-						<label data-answer>Extremely Prepared</label>
+						<label>Extremely Prepared</label>
 					</div>
 				</div>
 				<button data-prev-button>Previous</button>
 				<button data-next-button>Next</button>
 			</div>
-			<div data-template-title
+			<div data-template-results
 				class="hidden">
-				<h1 data-title-body></h1>
-
-				<button data-next-button>Next</button>
+				<h1>Results</h1>
+				<p>Thank you for taking the quiz.</p>
 			</div>
 	</section>
 
