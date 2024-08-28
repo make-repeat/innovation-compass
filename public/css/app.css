@@ -1,0 +1,202 @@
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+/* Quiz */
+.quiz {
+    font-family: "GT Planar";
+    font-weight: 300;
+    color: #042159;
+}
+
+.quiz strong {
+    font-weight: 500;
+}
+
+.quiz .error p {
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 13.8px;
+    letter-spacing: 0.05em;
+    color: #c4291c;
+}
+
+.quiz__container {
+    padding: 20px 16px;
+    min-height: 100vh;
+}
+
+.quiz__header {
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.quiz__header .headline {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 36.8px;
+    text-align: left;
+    margin: 0;
+}
+
+.quiz__progress {
+    min-height: 72px;
+    text-transform: uppercase;
+}
+
+.quiz__progress-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 12px;
+    line-height: 13.8px;
+    letter-spacing: 0.07em;
+}
+
+.quiz__progress-text__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.quiz__progress-bar {
+    position: relative;
+    width: 182px;
+    height: 6px;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    margin-top: 10px;
+}
+
+.quiz__progress-bar__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background-color: red;
+}
+
+.quiz__card-wrap {
+}
+
+.quiz__card {
+    background-color: #fff;
+    border: 1px solid #000;
+    margin: 24px 0;
+    padding: 16px;
+}
+
+.quiz__card .question {
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 25.2px;
+    margin: 0 0 24px 0;
+}
+
+.quiz__card .headline {
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 30px;
+    margin: 0 0 24px 0;
+}
+
+.quiz__card .blurb {
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.option-group .option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.option-group .option label {
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 25.2px;
+    margin: 0;
+}
+
+.option-group .option input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #042159;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+}
+
+.option-group .option input[type="radio"]:checked {
+    background-color: #042159;
+    box-shadow: inset 0 0 0 4px #fff;
+}
+
+.quiz__buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.quiz__button {
+    padding: 9px 12px;
+    background: white;
+    border: 1px solid #042159;
+    font-family: "GT Alpina Typewriter";
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.02px;
+}
+
+@media screen and (min-width: 1024px) {
+    .quiz__container {
+        padding: 20px 40px;
+    }
+
+    .quiz__layout {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 24px;
+    }
+
+    .quiz__header {
+        grid-column: span 12;
+        min-height: 140px;
+    }
+
+    .quiz__header .headline {
+        font-size: 52px;
+        font-weight: 500;
+        line-height: 80px;
+        text-align: left;
+    }
+
+    .quiz__progress {
+        grid-column: span 3;
+    }
+
+    .quiz__card-wrap {
+        grid-column: span 6;
+    }
+
+    .quiz__card {
+        min-height: 420px;
+        margin-top: 0;
+        padding: 24px;
+    }
+
+    .quiz__card .question {
+        margin-bottom: 60px;
+    }
+}
