@@ -228,7 +228,7 @@ const quizApp = {
 
     loadQuizData: async function () {
         try {
-            const response = await fetch("/quiz.json");
+            const response = await fetch("quiz.json");
             const data = await response.json();
             this.quiz = data;
             this.makeSectionData();
