@@ -44,12 +44,16 @@ const quizApp = {
         // Buttons
         this.hooks.buttons = {
             start: document.querySelector("[data-start-button]"),
+            finish: document.querySelector("[data-finish-button]"),
             next: document.querySelectorAll("[data-next-button]"),
             prev: document.querySelectorAll("[data-prev-button]"),
         };
 
         this.hooks.buttons.start.addEventListener("click", () => {
             this.startQuiz();
+        });
+        this.hooks.buttons.finish.addEventListener("click", () => {
+            this.finishQuiz();
         });
         this.hooks.buttons.next.forEach((item) => {
             item.addEventListener("click", () => {
@@ -191,6 +195,13 @@ const quizApp = {
         this.setTheme(frame.category, "title");
     },
 
+    renderResults: function () {
+        this.hideElement(this.hooks.templates.start);
+        this.hideElement(this.hooks.templates.question);
+        this.hideElement(this.hooks.templates.title);
+        this.showElement(this.hooks.templates.results);
+    },
+
     setTheme: function (category, type) {
         switch (category + "-" + type) {
             case "community-title":
@@ -279,5 +290,19 @@ const quizApp = {
 
     showElement: function (element) {
         element.classList.remove("hidden");
+    },
+
+    finishQuiz: function () {
+        // Loop through the quiz and randomly
+        // asssign an answer value from 1-5
+        this.quiz.forEach((item) => {
+            if (item.weighting) {
+                item.answer = Math.floor(Math.random() * 5) + 1;
+            }
+        });
+
+        console.log(this.quiz);
+
+        this.renderResults();
     },
 };
