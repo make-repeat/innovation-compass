@@ -237,6 +237,10 @@
 	line-height: 19.6px;
 }
 
+.quiz__activities {
+	margin-top: 24px;
+}
+
 @media screen and (min-width: 1024px) {
 	.quiz__layout--start {
 	}
@@ -709,6 +713,10 @@
 
 	.clock-labels {
 		display: block;
+	}
+
+	.quiz__activities {
+		grid-column: span 12;
 	}
 }
 
