@@ -38,6 +38,8 @@
 }
 
 .quiz__layout--start .quiz__header {
+	min-height: 420px;
+	padding-top: 48px;
 	background: var(--color-navy);
 }
 
@@ -64,7 +66,7 @@
 	font-size: 28px;
 	font-weight: 300;
 	line-height: 32.2px;
-	margin: 0;
+	margin: 10px 0;
 }
 
 .quiz__body {
