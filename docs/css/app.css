@@ -224,6 +224,10 @@
 		padding: 20px 40px;
 	}
 
+	.quiz__summary {
+		grid-column: span 6 / 10;
+	}
+
 	.quiz__progress {
 		grid-column: span 3;
 	}
