@@ -12,6 +12,7 @@ const quizApp = {
     hooks: {},
     quiz: null,
     sectionData: {},
+    blockData: [],
     currentFrame: 0,
 
     init: function () {
@@ -301,8 +302,34 @@ const quizApp = {
             }
         });
 
-        console.log(this.quiz);
-
+        this.doCalculations();
         this.renderResults();
+    },
+
+    doCalculations: function () {
+        this.quiz.forEach((item) => {
+            if (item.weighting) {
+                item.priority = item.answer * item.weighting;
+                // If the blockData doesn't contain the key, add it
+                if (!this.blockData[item.building_block]) {
+                    this.blockData[item.building_block] = {
+                        items: [],
+                        average: null
+                    };
+                }
+                this.blockData[item.building_block].items.push(item);
+            }
+        });
+
+        // Calculate the average for each block
+        for (let block in this.blockData) {
+            let total = 0;
+            this.blockData[block].items.forEach((item) => {
+                total += item.priority;
+            });
+            this.blockData[block].average = total / this.blockData[block].items.length;
+        }
+
+        console.log(this.blockData);
     },
 };
