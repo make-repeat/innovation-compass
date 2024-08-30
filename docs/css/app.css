@@ -205,10 +205,36 @@
 	line-height: 16.02px;
 }
 
-.quiz__results-graph {
+.quiz__results {
 	padding: 16px;
 	overflow: hidden;
 	border: 1px solid var(--color-navy);
+}
+
+.results-summary {
+	margin: 20px 0 0 0;
+}
+
+.results-summary .eyebrow {
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 13.73px;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--color-purple);
+}
+
+.results-summary h2 {
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 25.2px;
+	margin-top: 0;
+}
+
+.results-summary p {
+	font-size: 14px;
+	font-weight: 300;
+	line-height: 19.6px;
 }
 
 @media screen and (min-width: 1024px) {
@@ -574,9 +600,12 @@
 	background: transparent;
 	white-space: nowrap;
 	text-align: center;
-	line-height: 17px;
-	font-size: 12px;
 	transform: translate(-50%, -50%);
+
+	font-family: "GT Alpina Typewriter";
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 17px;
 }
 
 .clock-label--12 {
@@ -649,4 +678,52 @@
 	top: 3%;
 	left: -26%;
 	text-align: right;
+}
+
+@media screen and (min-width: 1024px) {
+	.quiz__results {
+		grid-column: span 12;
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 24px;
+	}
+
+	.results-graph {
+		grid-column: span 5 / 11;
+		order: 2;
+	}
+
+	.results-summary {
+		grid-column: span 3;
+		margin: 0;
+	}
+
+	.clock-container {
+		padding: 40px 0;
+	}
+
+	.clock {
+		--width: 360px;
+		--height: var(--width);
+	}
+
+	.clock-labels {
+		display: block;
+	}
+}
+
+@media screen and (min-width: 1280px) {
+	.results-graph {
+		grid-column: span 6 / 12;
+		order: 2;
+	}
+
+	.results-summary {
+		grid-column: span 4;
+	}
+
+	.clock {
+		--width: 400px;
+		--height: var(--width);
+	}
 }
