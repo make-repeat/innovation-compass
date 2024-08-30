@@ -31,7 +31,7 @@
             </p>
           </div>
           <div class="quiz__body">
-            <div class="">
+            <div class="quiz__summary">
               <h2>Innovation Building Blocks</h2>
               <p>
                 The Innovator Building Blocks consist of 40 essential
@@ -46,8 +46,18 @@
                 vision setting, sustainable funding, business operations,
                 and more.
               </p>
-              <button data-start-button>Start Quiz</button>
-              <button data-finish-button>Finish Quiz</button>
+              <h2>Quiz</h2>
+              <p>To help you navigate your innovation journey, our assessment quiz can guide you on where to focus your
+                efforts. The quiz should take 10-15 min to complete and contains 40 questions divided in 3 sections.</p>
+
+              <div class="buttons">
+                <button data-start-button
+                  class="button w-inline-block">
+                  <div class="button-text">Begin the Quiz</div>
+                </button>
+                <br />
+                <button data-finish-button>Skip to Results (dev)</button>
+              </div>
             </div>
           </div>
         </div>
@@ -203,12 +213,87 @@
         class="hidden">
         <div class="quiz__layout quiz__layout--results">
           <div class="quiz__header">
-            <h1 class="headline">Results</h1>
-            <p>Thank you for taking the quiz.</p>
+            <h1 class="headline">Quiz Results</h1>
           </div>
           <div class="quiz__body">
-            <div class="">
-              <p>Data results</p>
+            <div class="quiz__results-graph">
+              <div class="clock-container">
+                <div class="clock">
+                  <div class="ring ring--1"></div>
+                  <div class="ring ring--2"></div>
+                  <div class="ring ring--3"></div>
+                  <div class="clock-hands">
+                    <div data-hand
+                      data-hand-reach="1"
+                      data-hand-color="1"
+                      class="hand hand--1"></div>
+                    <div data-hand
+                      data-hand-reach="2"
+                      data-hand-color="1"
+                      class="hand hand--2"></div>
+                    <div data-hand
+                      data-hand-reach="3"
+                      data-hand-color="2"
+                      class="hand hand--3"></div>
+                    <div data-hand
+                      data-hand-reach="4"
+                      data-hand-color="2"
+                      class="hand hand--4"></div>
+                    <div data-hand
+                      data-hand-reach="5"
+                      data-hand-color="2"
+                      class="hand hand--5"></div>
+                    <div data-hand
+                      data-hand-reach="6"
+                      data-hand-color="2"
+                      class="hand hand--6"></div>
+                    <div data-hand
+                      data-hand-reach="7"
+                      data-hand-color="3"
+                      class="hand hand--7"></div>
+                    <div data-hand
+                      data-hand-reach="8"
+                      data-hand-color="3"
+                      class="hand hand--8"></div>
+                    <div data-hand
+                      data-hand-reach="9"
+                      data-hand-color="3"
+                      class="hand hand--9"></div>
+                    <div data-hand
+                      data-hand-reach="10"
+                      data-hand-color="3"
+                      class="hand hand--10"></div>
+                    <div data-hand
+                      data-hand-reach="11"
+                      data-hand-color="1"
+                      class="hand hand--11"></div>
+                    <div data-hand
+                      data-hand-reach="12"
+                      data-hand-color="1"
+                      class="hand hand--12"></div>
+                  </div>
+                  <div class="clock-labels">
+                    <div class="clock-label clock-label--1">Proof of Impact</div>
+                    <div class="clock-label clock-label--2">Equity Centered Process</div>
+                    <div class="clock-label clock-label--3">Community Connection</div>
+                    <div class="clock-label clock-label--4">Supportive Guides</div>
+                    <div class="clock-label clock-label--5">Compatible Collaborators</div>
+                    <div class="clock-label clock-label--6">Public Presence</div>
+                    <div class="clock-label clock-label--7">Operating Infrastructure</div>
+                    <div class="clock-label clock-label--8">Effective Leadership</div>
+                    <div class="clock-label clock-label--9">Startup Tactics</div>
+                    <div class="clock-label clock-label--10">Sustainable Funding</div>
+                    <div class="clock-label clock-label--11">Foundational Vision</div>
+                    <div class="clock-label clock-label--12">Signature Strength</div>
+                  </div>
+                  <div class="middle-cap"></div>
+                </div>
+              </div>
+              <h2>Your Innovator Quiz Results</h2>
+              <p>This chart visually represents your strengths and growth areas across the twelve building blocks,
+                enabling easy comparison between nodes. This snapshot offers an at-a-glance view to identify patterns
+                and gaps in your innovation journey. </p>
+              <p>Select points on the chart to learn more about your results or the innovation building blocks.</p>
             </div>
           </div>
         </div>

@@ -1,9 +1,15 @@
-/* Utilities */
+/**
+ * Utilities
+ * ============================================================ */
+
 .hidden {
 	display: none !important;
 }
 
-/* Quiz */
+/**
+ * Quiz 
+ * ============================================================ */
+
 .quiz {
 	--color-navy: #042159;
 	--color-purple: #5d62f4;
@@ -39,20 +45,26 @@
 
 .quiz__layout--start .quiz__header {
 	min-height: 420px;
-	padding-top: 48px;
 	background: var(--color-navy);
 }
 
-.quiz__layout--start .quiz__header > * {
+.quiz__layout--results .quiz__header {
+	min-height: 300px;
+	background: var(--color-navy);
+}
+
+.quiz__layout--start .quiz__header > *,
+.quiz__layout--results .quiz__header > * {
 	color: var(--color-purple-light);
 }
 
-.quiz__layout--start .quiz__header .headline {
+.quiz__layout--start .quiz__header .headline,
+.quiz__layout--results .quiz__header .headline {
 	color: var(--color-white);
 }
 
 .quiz__header {
-	padding: 20px 16px;
+	padding: 36px 16px 20px 16px;
 }
 
 .quiz__header .headline {
@@ -71,6 +83,10 @@
 
 .quiz__body {
 	padding: 20px 16px;
+}
+
+.quiz__summary .buttons {
+	margin-top: 36px;
 }
 
 .quiz__progress {
@@ -189,6 +205,12 @@
 	line-height: 16.02px;
 }
 
+.quiz__results-graph {
+	padding: 16px;
+	overflow: hidden;
+	border: 1px solid var(--color-navy);
+}
+
 @media screen and (min-width: 1024px) {
 	.quiz__layout--start {
 	}
@@ -205,15 +227,27 @@
 
 	.quiz__header {
 		grid-column: span 12;
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		gap: 24px;
 		min-height: 140px;
-		padding: 20px 40px;
+		padding-left: 40px;
+		padding-right: 40px;
 	}
 
 	.quiz__header .headline {
+		grid-column: span 7;
 		font-size: 52px;
 		font-weight: 500;
 		line-height: 80px;
-		text-align: left;
+	}
+
+	.quiz__header p {
+		grid-column: span 5;
+		font-size: 36px;
+		font-weight: 300;
+		line-height: 41.4px;
+		margin: 0;
 	}
 
 	.quiz__body {
@@ -245,4 +279,374 @@
 	.quiz__card .question {
 		margin-bottom: 60px;
 	}
+}
+
+/**
+ * Result Graph 
+ * ============================================================ */
+
+.clock-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.clock {
+	--width: 320px;
+	--height: var(--width);
+
+	--half-width: calc((var(--width) / 2));
+	--min: calc(var(--half-width) / 3);
+	--max: var(--half-width);
+	--real-width: calc(var(--max) - var(--min));
+	--step: calc(var(--real-width) / 11);
+
+	--hand-reach-1: calc(var(--min) + (var(--step) * 0));
+	--hand-reach-2: calc(var(--min) + (var(--step) * 1));
+	--hand-reach-3: calc(var(--min) + (var(--step) * 2));
+	--hand-reach-4: calc(var(--min) + (var(--step) * 3));
+	--hand-reach-5: calc(var(--min) + (var(--step) * 4));
+	--hand-reach-6: calc(var(--min) + (var(--step) * 5));
+	--hand-reach-7: calc(var(--min) + (var(--step) * 6));
+	--hand-reach-8: calc(var(--min) + (var(--step) * 7));
+	--hand-reach-9: calc(var(--min) + (var(--step) * 8));
+	--hand-reach-10: calc(var(--min) + (var(--step) * 9));
+	--hand-reach-11: calc(var(--min) + (var(--step) * 10));
+	--hand-reach-12: calc(var(--min) + (var(--step) * 11));
+
+	--hand-color-1: #dfe0fd;
+	--hand-color-2: #d0dedd;
+	--hand-color-3: #fae0da;
+
+	--hand-1-rotation: 120deg;
+	--hand-2-rotation: 150deg;
+	--hand-3-rotation: 180deg;
+	--hand-4-rotation: 210deg;
+	--hand-5-rotation: 240deg;
+	--hand-6-rotation: 270deg;
+	--hand-7-rotation: 300deg;
+	--hand-8-rotation: 330deg;
+	--hand-9-rotation: 360deg;
+	--hand-10-rotation: 390deg;
+	--hand-11-rotation: 420deg;
+	--hand-12-rotation: 450deg;
+
+	width: var(--width);
+	height: var(--height);
+	flex: none;
+	border-radius: 50%;
+	position: relative;
+	background: white;
+	color: #042159;
+}
+
+.ring {
+	position: absolute;
+	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.25);
+	border-radius: 50%;
+}
+
+.ring--1 {
+	top: 33.333%;
+	left: 33.333%;
+	width: 33.333%;
+	height: 33.333%;
+}
+
+.ring--2 {
+	top: 16.666%;
+	left: 16.666%;
+	width: 66.666%;
+	height: 66.666%;
+}
+
+.ring--3 {
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 100%;
+}
+
+.middle-cap {
+	position: absolute;
+	z-index: 30;
+	top: 45%;
+	left: 45%;
+	width: 10%;
+	height: 10%;
+	border-radius: 50%;
+	background: #042159;
+}
+
+.clock-hands {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+}
+
+.hand {
+	width: 50%;
+	height: 1px;
+	background: rgba(0, 0, 0, 0.25);
+	position: absolute;
+	top: 50%;
+	transform-origin: right center;
+}
+
+.hand:hover,
+.hand.is--focused {
+	z-index: 20;
+}
+
+.hand:hover:before,
+.hand.is--focused:before {
+	border-right-color: #5d62f4 !important;
+}
+
+/* Triangle */
+.hand::before {
+	content: "";
+	position: absolute;
+	top: -12px;
+	right: 0px;
+	width: 0;
+	height: 0;
+	border-top: 12px solid transparent;
+	border-bottom: 12px solid transparent;
+	border-right-style: solid;
+}
+
+/* Dot */
+.hand::after {
+	content: "";
+	position: absolute;
+	top: -4px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #042159;
+}
+
+.hand[data-hand-reach="1"]::before {
+	border-right-width: var(--hand-reach-1);
+}
+.hand[data-hand-reach="1"]::after {
+	right: calc(var(--hand-reach-1) - 3px);
+}
+.hand[data-hand-reach="2"]::before {
+	border-right-width: var(--hand-reach-2);
+}
+.hand[data-hand-reach="2"]::after {
+	right: calc(var(--hand-reach-2) - 3px);
+}
+.hand[data-hand-reach="3"]::before {
+	border-right-width: var(--hand-reach-3);
+}
+.hand[data-hand-reach="3"]::after {
+	right: calc(var(--hand-reach-3) - 3px);
+}
+.hand[data-hand-reach="4"]::before {
+	border-right-width: var(--hand-reach-4);
+}
+.hand[data-hand-reach="4"]::after {
+	right: calc(var(--hand-reach-4) - 3px);
+}
+.hand[data-hand-reach="5"]::before {
+	border-right-width: var(--hand-reach-5);
+}
+.hand[data-hand-reach="5"]::after {
+	right: calc(var(--hand-reach-5) - 3px);
+}
+.hand[data-hand-reach="6"]::before {
+	border-right-width: var(--hand-reach-6);
+}
+.hand[data-hand-reach="6"]::after {
+	right: calc(var(--hand-reach-6) - 3px);
+}
+.hand[data-hand-reach="7"]::before {
+	border-right-width: var(--hand-reach-7);
+}
+.hand[data-hand-reach="7"]::after {
+	right: calc(var(--hand-reach-7) - 3px);
+}
+.hand[data-hand-reach="8"]::before {
+	border-right-width: var(--hand-reach-8);
+}
+.hand[data-hand-reach="8"]::after {
+	right: calc(var(--hand-reach-8) - 3px);
+}
+.hand[data-hand-reach="9"]::before {
+	border-right-width: var(--hand-reach-9);
+}
+.hand[data-hand-reach="9"]::after {
+	right: calc(var(--hand-reach-9) - 3px);
+}
+.hand[data-hand-reach="10"]::before {
+	border-right-width: var(--hand-reach-10);
+}
+.hand[data-hand-reach="10"]::after {
+	right: calc(var(--hand-reach-10) - 3px);
+}
+.hand[data-hand-reach="11"]::before {
+	border-right-width: var(--hand-reach-11);
+}
+.hand[data-hand-reach="11"]::after {
+	right: calc(var(--hand-reach-11) - 3px);
+}
+.hand[data-hand-reach="12"]::before {
+	border-right-width: var(--hand-reach-12);
+}
+.hand[data-hand-reach="12"]::after {
+	right: calc(var(--hand-reach-12) - 3px);
+}
+
+.hand[data-hand-color="1"]::before {
+	border-right-color: var(--hand-color-1);
+}
+.hand[data-hand-color="2"]::before {
+	border-right-color: var(--hand-color-2);
+}
+.hand[data-hand-color="3"]::before {
+	border-right-color: var(--hand-color-3);
+}
+
+.hand--1 {
+	transform: rotate(var(--hand-1-rotation));
+}
+
+.hand--2 {
+	transform: rotate(var(--hand-2-rotation));
+}
+
+.hand--3 {
+	transform: rotate(var(--hand-3-rotation));
+}
+
+.hand--4 {
+	transform: rotate(var(--hand-4-rotation));
+}
+
+.hand--5 {
+	transform: rotate(var(--hand-5-rotation));
+}
+
+.hand--6 {
+	transform: rotate(var(--hand-6-rotation));
+}
+
+.hand--7 {
+	transform: rotate(var(--hand-7-rotation));
+}
+
+.hand--8 {
+	transform: rotate(var(--hand-8-rotation));
+}
+
+.hand--9 {
+	transform: rotate(var(--hand-9-rotation));
+}
+
+.hand--10 {
+	transform: rotate(var(--hand-10-rotation));
+}
+
+.hand--11 {
+	transform: rotate(var(--hand-11-rotation));
+}
+
+.hand--12 {
+	transform: rotate(var(--hand-12-rotation));
+}
+
+.clock-labels {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	pointer-events: none;
+	display: none;
+}
+
+.clock-label {
+	position: absolute;
+	width: 100%;
+	height: 17px;
+	background: transparent;
+	white-space: nowrap;
+	text-align: center;
+	line-height: 17px;
+	font-size: 12px;
+	transform: translate(-50%, -50%);
+}
+
+.clock-label--12 {
+	top: -5%;
+	left: 50%;
+	text-align: center;
+}
+
+.clock-label--1 {
+	top: 3%;
+	left: 126%;
+	text-align: left;
+}
+
+.clock-label--2 {
+	top: 22%;
+	left: 145%;
+	text-align: left;
+}
+
+.clock-label--3 {
+	top: 50%;
+	left: 153%;
+	text-align: left;
+}
+
+.clock-label--4 {
+	top: 78%;
+	left: 145%;
+	text-align: left;
+}
+
+.clock-label--5 {
+	top: 97%;
+	left: 126%;
+	text-align: left;
+}
+
+.clock-label--6 {
+	top: 105%;
+	left: 50%;
+	text-align: center;
+}
+
+.clock-label--7 {
+	top: 97%;
+	left: -26%;
+	text-align: right;
+}
+
+.clock-label--8 {
+	top: 78%;
+	left: -45%;
+	text-align: right;
+}
+
+.clock-label--9 {
+	top: 50%;
+	left: -53%;
+	text-align: right;
+}
+
+.clock-label--10 {
+	top: 22%;
+	left: -45%;
+	text-align: right;
+}
+
+.clock-label--11 {
+	top: 3%;
+	left: -26%;
+	text-align: right;
 }
