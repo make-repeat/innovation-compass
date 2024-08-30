@@ -6,6 +6,8 @@
 /* Quiz */
 .quiz {
 	--color-navy: #042159;
+	--color-purple: #5d62f4;
+	--color-purple-light: #dfe0fd;
 	--color-white: #fff;
 	--color-black: #000;
 	--color-error: #c4291c;
@@ -39,7 +41,11 @@
 	background: var(--color-navy);
 }
 
-.quiz__layout--start .quiz__header * {
+.quiz__layout--start .quiz__header > * {
+	color: var(--color-purple-light);
+}
+
+.quiz__layout--start .quiz__header .headline {
 	color: var(--color-white);
 }
 
@@ -51,7 +57,13 @@
 	font-size: 32px;
 	font-weight: 500;
 	line-height: 36.8px;
-	text-align: left;
+	margin: 0;
+}
+
+.quiz__header p {
+	font-size: 28px;
+	font-weight: 300;
+	line-height: 32.2px;
 	margin: 0;
 }
 
