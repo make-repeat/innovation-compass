@@ -16,6 +16,7 @@ const quizApp = {
     currentFrame: 0,
 
     init: function () {
+        this.injectHtml();
         this.initHooks();
         this.loadQuizData();
     },
