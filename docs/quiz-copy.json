@@ -271,53 +271,23 @@
     },
     {
         "category": "impact",
-        "building_block": "foundational_vision",
-        "activity_name": "Fall in Love with a Problem",
+        "building_block": "unique_value_proposition",
+        "activity_name": "Define the Unique Value Proposition",
         "answer": null,
-        "weighting": 2,
-        "blurb": "A deep-seated concern for a specific problem and the drive to solve it are the bedrock of innovation.",
-        "activity_description": "A deep-seated concern for a specific problem and the drive to solve it are the bedrock of innovation.",
-        "activity_url": "https://www.innovationcompass.io/activities/fall-in-love-with-a-problem"
+        "weighting": 1,
+        "blurb": "A value proposition is a short statement that explains the unique benefits of your product or service to a target audience.",
+        "activity_description": "A value proposition is a short statement that explains the unique benefits of your product or service to a target audience.",
+        "activity_url": "https://www.innovationcompass.io/activities/define-the-unique-value-proposition"
     },
     {
         "category": "impact",
-        "building_block": "foundational_vision",
-        "activity_name": "Define a Vision and Purpose for the Innovation",
+        "building_block": "unique_value_proposition",
+        "activity_name": "Select a Name for Your Business",
         "answer": null,
-        "weighting": 2,
-        "blurb": "Defining a clear vision and purpose for a business provides a guiding north star, aligning all efforts and decisions towards a common goal while inspiring both team members and relevant groups.",
-        "activity_description": "Defining a clear vision and purpose for a business provides a guiding north star, aligning all efforts and decisions towards a common goal while inspiring both team members and relevant groups.",
-        "activity_url": "https://www.innovationcompass.io/activities/define-a-vision-and-purpose-for-the-innovation"
-    },
-    {
-        "category": "impact",
-        "building_block": "foundational_vision",
-        "activity_name": "Map Out Stakeholders",
-        "answer": null,
-        "weighting": 3,
-        "blurb": "A stakeholder map is a visual representation of all the people, organizations, and entities impacted by the problem you seek to solve.",
-        "activity_description": "A stakeholder map is a visual representation of all the people, organizations, and entities impacted by the problem you seek to solve.",
-        "activity_url": "https://www.innovationcompass.io/activities/map-out-stakeholders"
-    },
-    {
-        "category": "impact",
-        "building_block": "foundational_vision",
-        "activity_name": "Define a Unique Approach to Solving the Problem",
-        "answer": null,
-        "weighting": 2,
-        "blurb": "To provide value, your venture needs to define a unique approach to solving a specific problem that matters.",
-        "activity_description": "To provide value, your venture needs to define a unique approach to solving a specific problem that matters.",
-        "activity_url": "https://www.innovationcompass.io/activities/define-a-unique-approach-to-solving-the-problem"
-    },
-    {
-        "category": "impact",
-        "building_block": "foundational_vision",
-        "activity_name": "Sketch Out Your Theory of Change",
-        "answer": null,
-        "weighting": 2,
-        "blurb": "A theory of change is a structured framework for how a set of assumptions and actions can lead to a set of anticipated outcomes.",
-        "activity_description": "A theory of change is a structured framework for how a set of assumptions and actions can lead to a set of anticipated outcomes.",
-        "activity_url": "https://www.innovationcompass.io/activities/sketch-out-your-theory-of-change"
+        "weighting": 1,
+        "blurb": "A clear and memorable name for your venture will go a long way in helping customers easily recognize your business and building brand loyalty.",
+        "activity_description": "A clear and memorable name for your venture will go a long way in helping customers easily recognize your business and building brand loyalty.",
+        "activity_url": "https://www.innovationcompass.io/activities/select-a-name-for-your-business"
     },
     {
         "category": "impact",
@@ -332,22 +302,52 @@
     {
         "category": "impact",
         "building_block": "signature_strength",
-        "activity_name": "Define the Unique Value Proposition",
+        "activity_name": "Define a Unique Approach to Solving the Problem",
         "answer": null,
         "weighting": 3,
-        "blurb": "A value proposition is a short statement that explains the unique benefits of your product or service to a target audience.",
-        "activity_description": "A value proposition is a short statement that explains the unique benefits of your product or service to a target audience.",
-        "activity_url": "https://www.innovationcompass.io/activities/define-the-unique-value-proposition"
+        "blurb": "To provide value, your venture needs to define a unique approach to solving a specific problem that matters.",
+        "activity_description": "To provide value, your venture needs to define a unique approach to solving a specific problem that matters.",
+        "activity_url": "https://www.innovationcompass.io/activities/define-a-unique-approach-to-solving-the-problem"
     },
     {
         "category": "impact",
         "building_block": "signature_strength",
-        "activity_name": "Select a Name for Your Business",
+        "activity_name": "Map Out Stakeholders",
         "answer": null,
-        "weighting": 1,
-        "blurb": "A clear and memorable name for your venture will go a long way in helping customers easily recognize your business and building brand loyalty.",
-        "activity_description": "A clear and memorable name for your venture will go a long way in helping customers easily recognize your business and building brand loyalty.",
-        "activity_url": "https://www.innovationcompass.io/activities/select-a-name-for-your-business"
+        "weighting": 2,
+        "blurb": "A stakeholder map is a visual representation of all the people, organizations, and entities impacted by the problem you seek to solve.",
+        "activity_description": "A stakeholder map is a visual representation of all the people, organizations, and entities impacted by the problem you seek to solve.",
+        "activity_url": "https://www.innovationcompass.io/activities/map-out-stakeholders"
+    },
+    {
+        "category": "impact",
+        "building_block": "signature_strength",
+        "activity_name": "Sketch Out Your Theory of Change",
+        "answer": null,
+        "weighting": 2,
+        "blurb": "A theory of change is a structured framework for how a set of assumptions and actions can lead to a set of anticipated outcomes.",
+        "activity_description": "A theory of change is a structured framework for how a set of assumptions and actions can lead to a set of anticipated outcomes.",
+        "activity_url": "https://www.innovationcompass.io/activities/sketch-out-your-theory-of-change"
+    },
+    {
+        "category": "impact",
+        "building_block": "signature_strength",
+        "activity_name": "Define a Vision and Purpose for the Innovation",
+        "answer": null,
+        "weighting": 2,
+        "blurb": "Defining a clear vision and purpose for a business provides a guiding north star, aligning all efforts and decisions towards a common goal while inspiring both team members and relevant groups.",
+        "activity_description": "Defining a clear vision and purpose for a business provides a guiding north star, aligning all efforts and decisions towards a common goal while inspiring both team members and relevant groups.",
+        "activity_url": "https://www.innovationcompass.io/activities/define-a-vision-and-purpose-for-the-innovation"
+    },
+    {
+        "category": "impact",
+        "building_block": "signature_strength",
+        "activity_name": "Fall in Love with a Problem",
+        "answer": null,
+        "weighting": 2,
+        "blurb": "A deep-seated concern for a specific problem and the drive to solve it are the bedrock of innovation.",
+        "activity_description": "A deep-seated concern for a specific problem and the drive to solve it are the bedrock of innovation.",
+        "activity_url": "https://www.innovationcompass.io/activities/fall-in-love-with-a-problem"
     },
     {
         "category": "impact",

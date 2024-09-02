@@ -11,14 +11,18 @@ document.addEventListener("DOMContentLoaded", function () {
 const quizApp = {
     hooks: {},
     quiz: null,
-    sectionData: {},
-    blockData: [],
+    blocks: null,
+    sections: {},
     currentFrame: 0,
+    currentBlock: 0,
+    blockKeys: [],
+    activities: [],
 
     init: function () {
         this.injectHtml();
         this.initHooks();
         this.loadQuizData();
+        this.loadBlocksData();
     },
 
     initHooks: function () {
@@ -39,14 +43,25 @@ const quizApp = {
             question: document.querySelector("[data-template-question]"),
             title: document.querySelector("[data-template-title]"),
             results: document.querySelector("[data-template-results]"),
+            slide: {
+                intro: document.querySelector("[data-slide-intro]"),
+                single: document.querySelector("[data-slide-single]"),
+                eyebrow: document.querySelector("[data-slide-eyebrow]"),
+                title: document.querySelector("[data-slide-title]"),
+                body: document.querySelector("[data-slide-body]"),
+                priority: document.querySelector("[data-slide-priority]"),
+            },
+            activities: document.querySelector("[data-activities]"),
         };
 
         // Buttons
         this.hooks.buttons = {
             start: document.querySelector("[data-start-button]"),
             finish: document.querySelector("[data-finish-button]"),
-            next: document.querySelectorAll("[data-next-button]"),
-            prev: document.querySelectorAll("[data-prev-button]"),
+            nextFrame: document.querySelectorAll("[data-next-frame-button]"),
+            prevFrame: document.querySelectorAll("[data-prev-frame-button]"),
+            nextBlock: document.querySelector("[data-next-block-button]"),
+            prevBlock: document.querySelector("[data-prev-block-button]"),
         };
 
         this.hooks.buttons.start.addEventListener("click", () => {
@@ -55,17 +70,22 @@ const quizApp = {
         this.hooks.buttons.finish.addEventListener("click", () => {
             this.finishQuiz();
         });
-        this.hooks.buttons.next.forEach((item) => {
+        this.hooks.buttons.nextFrame.forEach((item) => {
             item.addEventListener("click", () => {
                 this.nextFrame();
             });
         });
-        this.hooks.buttons.prev.forEach((item) => {
+        this.hooks.buttons.prevFrame.forEach((item) => {
             item.addEventListener("click", () => {
                 this.prevFrame();
             });
         });
-
+        this.hooks.buttons.nextBlock.addEventListener("click", () => {
+            this.nextBlock();
+        });
+        this.hooks.buttons.prevBlock.addEventListener("click", () => {
+            this.prevBlock();
+        });
         // Content
         this.hooks.questionHeadline = document.querySelector("[data-question-headline]");
         this.hooks.questionBlurb = document.querySelector("[data-question-blurb]");
@@ -118,6 +138,28 @@ const quizApp = {
         }
     },
 
+    prevBlock: function () {
+        console.log("prevBlock");
+        if (this.currentBlock > 0) {
+            this.currentBlock--;
+        } else {
+            this.currentBlock = 0
+        }
+        this.renderBlock();
+    },
+
+    nextBlock: function () {
+        // Hide the intro slide
+        this.hideElement(this.hooks.templates.slide.intro);
+        this.showElement(this.hooks.templates.slide.single);
+        if (this.currentBlock < this.blockKeys.length - 1) {
+            this.currentBlock++;
+        } else {
+            this.currentBlock = 0;
+        }
+        this.renderBlock();
+    },
+
     renderFrame: function () {
         // Hide error message
         this.hooks.errorMessage.classList.add("hidden");
@@ -147,9 +189,9 @@ const quizApp = {
         this.hooks.questionBlurb.innerHTML = frame.blurb;
 
         this.hooks.category.body.innerHTML = frame.category;
-        this.hooks.category.number.innerHTML = this.getSectionNumber() + " of " + Object.keys(this.sectionData).length;
+        this.hooks.category.number.innerHTML = this.getSectionNumber() + " of " + Object.keys(this.sections).length;
 
-        let percentage = ((this.getSectionProgress() + 1) / this.sectionData[frame.category]) * 100;
+        let percentage = ((this.getSectionProgress() + 1) / this.sections[frame.category]) * 100;
         this.hooks.progress.bar.style.width = percentage + "%";
         this.hooks.progress.percent.innerHTML = Math.round(percentage) + "%";
 
@@ -183,19 +225,30 @@ const quizApp = {
         this.hideElement(this.hooks.templates.title);
         this.showElement(this.hooks.templates.results);
 
-        console.log("renderResults", this.blockData, this.blockData.length);
+        console.log("renderResults", this.blocks, this.blocks.length);
 
         const resultHands = document.querySelectorAll("[data-result-hands]");
 
-        // Loop through the blockData and render the results
-        for (let block in this.blockData) {
+        // Loop through the blocks and render the results
+        for (let block in this.blocks) {
             const hand = document.querySelector("[data-hand-block-id='" + block + "']");
-            const average = this.blockData[block].average;
+            const average = this.blocks[block].average;
 
             if (hand && average) {
                 hand.setAttribute("data-hand-reach", average);
             }
         }
+    },
+
+    renderBlock: function () {
+        // Get the current block
+        const block = this.blocks[this.blockKeys[this.currentBlock]];
+        // Output data to block
+        this.hooks.templates.slide.eyebrow.innerHTML = block.category;
+        this.hooks.templates.slide.title.innerHTML = block.title;
+        this.hooks.templates.slide.body.innerHTML = block.description;
+        this.hooks.templates.slide.priority.innerHTML = block.priority;
+
     },
 
     setTheme: function (category, type) {
@@ -238,23 +291,33 @@ const quizApp = {
             const response = await fetch("quiz.json");
             const data = await response.json();
             this.quiz = data;
-            this.makeSectionData();
+            this.makesections();
         } catch (error) {
             console.error("Error loading quiz data:", error);
         }
     },
 
-    makeSectionData: function () {
-        let sectionData = {};
+    loadBlocksData: async function () {
+        try {
+            const response = await fetch("blocks.json");
+            const data = await response.json();
+            this.blocks = data;
+        } catch (error) {
+            console.error("Error loading blocks data:", error);
+        }
+    },
+
+    makesections: function () {
+        let sections = {};
         this.quiz.forEach((item, index) => {
             if (item.weighting) {
-                if (!sectionData[item.category]) {
-                    sectionData[item.category] = 0;
+                if (!sections[item.category]) {
+                    sections[item.category] = 0;
                 }
-                sectionData[item.category]++;
+                sections[item.category]++;
             }
         });
-        this.sectionData = sectionData;
+        this.sections = sections;
     },
 
     getSectionProgress: function () {
@@ -293,7 +356,7 @@ const quizApp = {
         // asssign an answer value from 1-5
         this.quiz.forEach((item) => {
             if (item.weighting) {
-                item.answer = Math.floor(Math.random() * 5) + 1;
+                item.answer = Math.floor(Math.random() * 4) + 1;
             }
         });
 
@@ -304,31 +367,73 @@ const quizApp = {
         this.quiz.forEach((item) => {
             if (item.weighting) {
                 item.priority = item.answer * item.weighting;
-                // If the blockData doesn't contain the key, add it
-                if (!this.blockData[item.building_block]) {
-                    this.blockData[item.building_block] = {
-                        items: [],
-                        average: null,
-                    };
-                }
-                this.blockData[item.building_block].items.push(item);
+                this.blocks[item.building_block].items.push(item);
             }
         });
 
         // Calculate the average for each block
-        for (let block in this.blockData) {
+        for (let block in this.blocks) {
             let total = 0;
-            this.blockData[block].items.forEach((item) => {
+            this.blocks[block].items.forEach((item) => {
                 total += item.priority;
             });
-            this.blockData[block].average = total / this.blockData[block].items.length;
+            this.blocks[block].average = total / this.blocks[block].items.length;
 
             // Round
-            this.blockData[block].average = Math.round(this.blockData[block].average);
+            this.blocks[block].average = Math.round(this.blocks[block].average);
         }
+
+        // Add priority to the blocks
+        for (let block in this.blocks) {
+            this.blocks[block].priority = this.getPriority(this.blocks[block].average);
+        }
+
+        this.blockKeys = Object.keys(this.blocks);
 
         // Render
         this.renderResults();
+
+        // Build activities
+        this.buildActivities();
+
+    },
+
+    buildActivities: function () {
+
+        // Create activities list
+        this.quiz.forEach((item, index) => {
+            if (item.weighting) {
+                item.block_priority = this.blocks[item.building_block].priority;
+                this.activities.push(item);
+            }
+        });
+
+        this.activities.sort(this.activitySort);
+
+        this.activities.forEach((activity, index) => {
+            let html = this.buildActivity(activity);
+            this.hooks.templates.activities.innerHTML += html;
+        });
+    },
+
+    activitySort: function (a, b) {
+        if (a.priority > b.priority) {
+            return -1;
+        }
+        if (a.priority < b.priority) {
+            return 1;
+        }
+        return 0;
+    },
+
+    getPriority: function (average) {
+        if (average <= 3) {
+            return "low";
+        } else if (average <= 7) {
+            return "medium";
+        } else {
+            return "high";
+        }
     },
 
     injectHtml: function () {
@@ -397,10 +502,10 @@ const quizApp = {
                             <p data-title-blurb class="blurb"></p>
                         </div>
                         <div class="quiz__buttons">
-                            <button data-prev-button class="quiz__button">
+                            <button data-prev-frame-button class="quiz__button">
                             Previous
                             </button>
-                            <button data-next-button class="quiz__button">Next</button>
+                            <button data-next-frame-button class="quiz__button">Next</button>
                         </div>
                         </div>
                     </div>
@@ -674,7 +779,7 @@ const quizApp = {
                         <div class="results-summary">
                             <div data-slideshow>
                             <div data-slides>
-                                <div data-slide class="">
+                                <div data-slide-intro>
                                 <h2>Your Innovator Quiz Results</h2>
                                 <p>
                                     This chart visually represents your strengths and
@@ -688,22 +793,23 @@ const quizApp = {
                                     results or the innovation building blocks.
                                 </p>
                                 </div>
-                                <div data-slide class="hidden">
-                                <div class="eyebrow">Impact</div>
-                                <h2>Signature Strength</h2>
-                                <p>
+                                <div data-slide-single class="hidden">
+                                <div data-slide-eyebrow class="eyebrow">Impact</div>
+                                <h2 data-slide-title>Signature Strength</h2>
+                                <p data-slide-body>
                                     Define your unique combination of skills, insights,
                                     and approaches that gives you a competitive edge.
                                 </p>
                                 <p>
                                     Your responses suggest that completing signature
-                                    strength activities is a high priority right now.
+                                    strength activities is a <span data-slide-priority></span> 
+                                    priority right now.
                                 </p>
                                 </div>
                             </div>
                             <div data-slideshow-buttons>
                                 <button
-                                data-slideshow-button-previous
+                                data-prev-block-button
                                 class="button w-inline-block"
                                 >
                                 <svg
@@ -720,7 +826,7 @@ const quizApp = {
                                 </svg>
                                 </button>
                                 <button
-                                data-slideshow-button-next
+                                data-next-block-button
                                 class="button w-inline-block"
                                 >
                                 <svg
@@ -742,104 +848,7 @@ const quizApp = {
                         </div>
 
                         <div class="quiz__activities">
-                        <div class="">
-                            <div role="list" class="">
-                            <div
-                                role="listitem"
-                                class="collection-item-4 w-dyn-item w-col w-col-4"
-                            >
-                                <div class="bb-activity-tile-div">
-                                <div class="bb-activity-tile-rounded-border">
-                                    <div class="bb-activity-tile-top-grid">
-                                    <div
-                                        style="color: #5d62f4"
-                                        class="bb-tag-text navy-tag-text block-display"
-                                    >
-                                        Foundational Vision
-                                    </div>
-                                    <div class="bb-activity-tile-title">
-                                        Define a vision and purpose for the innovation
-                                    </div>
-                                    </div>
-                                    <a href="#" class="button w-inline-block">
-                                    <div class="button-text">Go To Activity</div>
-                                    </a>
-                                </div>
-                                </div>
-                            </div>
-
-                            <div
-                                role="listitem"
-                                class="collection-item-4 w-dyn-item w-col w-col-4"
-                            >
-                                <div class="bb-activity-tile-div">
-                                <div class="bb-activity-tile-rounded-border">
-                                    <div class="bb-activity-tile-top-grid">
-                                    <div
-                                        style="color: #5d62f4"
-                                        class="bb-tag-text navy-tag-text block-display"
-                                    >
-                                        Foundational Vision
-                                    </div>
-                                    <div class="bb-activity-tile-title">
-                                        Define a vision and purpose for the innovation
-                                    </div>
-                                    </div>
-                                    <a href="#" class="button w-inline-block">
-                                    <div class="button-text">Go To Activity</div>
-                                    </a>
-                                </div>
-                                </div>
-                            </div>
-
-                            <div
-                                role="listitem"
-                                class="collection-item-4 w-dyn-item w-col w-col-4"
-                            >
-                                <div class="bb-activity-tile-div">
-                                <div class="bb-activity-tile-rounded-border">
-                                    <div class="bb-activity-tile-top-grid">
-                                    <div
-                                        style="color: #5d62f4"
-                                        class="bb-tag-text navy-tag-text block-display"
-                                    >
-                                        Foundational Vision
-                                    </div>
-                                    <div class="bb-activity-tile-title">
-                                        Define a vision and purpose for the innovation
-                                    </div>
-                                    </div>
-                                    <a href="#" class="button w-inline-block">
-                                    <div class="button-text">Go To Activity</div>
-                                    </a>
-                                </div>
-                                </div>
-                            </div>
-
-                            <div
-                                role="listitem"
-                                class="collection-item-4 w-dyn-item w-col w-col-4"
-                            >
-                                <div class="bb-activity-tile-div">
-                                <div class="bb-activity-tile-rounded-border">
-                                    <div class="bb-activity-tile-top-grid">
-                                    <div
-                                        style="color: #5d62f4"
-                                        class="bb-tag-text navy-tag-text block-display"
-                                    >
-                                        Foundational Vision
-                                    </div>
-                                    <div class="bb-activity-tile-title">
-                                        Define a vision and purpose for the innovation
-                                    </div>
-                                    </div>
-                                    <a href="#" class="button w-inline-block">
-                                    <div class="button-text">Go To Activity</div>
-                                    </a>
-                                </div>
-                                </div>
-                            </div>
-                            </div>
+                        <div data-activities>    
                         </div>
                         </div>
                     </div>
@@ -854,4 +863,34 @@ const quizApp = {
         htmlNode.innerHTML = html;
         scriptNode.after(htmlNode);
     },
+
+    // Build an activity
+    buildActivity: function (activity) {
+        let html = `
+            <div role="list" class="">
+            <div role="listitem"
+                class="collection-item-4 w-dyn-item w-col w-col-4" >
+                <div class="bb-activity-tile-div">
+                <div class="bb-activity-tile-rounded-border">
+                    <div class="bb-activity-tile-top-grid">
+                    <div
+                        style="color: #5d62f4"
+                        class="bb-tag-text navy-tag-text block-display"
+                    >
+                        ${activity.category}-${activity.priority}
+                    </div>
+                    <div class="bb-activity-tile-title">
+                        ${activity.activity_name}
+                    </div>
+                    </div>
+                    <a href="${activity.activity_url}" target="_blank" class="button w-inline-block">
+                    <div class="button-text">Go To Activity</div>
+                    </a>
+                </div>
+                </div>
+            </div>
+            </div>
+        `;
+        return html;
+    }
 };
