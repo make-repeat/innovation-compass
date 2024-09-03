@@ -289,7 +289,7 @@ const quizApp = {
 
     loadQuizData: async function () {
         try {
-            const response = await fetch(rootUrl + "quiz.json");
+            const response = await fetch(this.rootUrl + "quiz.json");
             const data = await response.json();
             this.quiz = data;
             this.makesections();
@@ -300,7 +300,7 @@ const quizApp = {
 
     loadBlocksData: async function () {
         try {
-            const response = await fetch(rootUrl + "blocks.json");
+            const response = await fetch(this.rootUrl + "blocks.json");
             const data = await response.json();
             this.blocks = data;
         } catch (error) {
