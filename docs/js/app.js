@@ -20,7 +20,7 @@ const quizApp = {
     baseUrl: "https://public-policy-lab.github.io/innovation-compass/",
 
     init: function () {
-        if (window.location.href != "www.innovationcompass.io") {
+        if (window.location.hostname != "www.innovationcompass.io") {
             this.baseUrl = "./";
         }
 
@@ -476,10 +476,8 @@ const quizApp = {
             .then((res) => res.text())
             .then((text) => {
                 // Inject the HTML
-                let scriptNode = document.querySelector("[data-quiz-script]");
-                var htmlNode = document.createElement("div");
-                htmlNode.innerHTML = text;
-                scriptNode.after(htmlNode);
+                let containerNode = document.getElementById("quiz-container");
+                containerNode.innerHTML = text;
             })
             .catch((e) => console.error(e));
     },
