@@ -17,6 +17,7 @@ const quizApp = {
     currentBlock: 0,
     blockKeys: [],
     activities: [],
+    rootUrl: "https://public-policy-lab.github.io/innovation-compass/",
 
     init: function () {
         this.injectHtml();
@@ -288,7 +289,7 @@ const quizApp = {
 
     loadQuizData: async function () {
         try {
-            const response = await fetch("quiz.json");
+            const response = await fetch(this.rootUrl + "quiz.json");
             const data = await response.json();
             this.quiz = data;
             this.makesections();
@@ -299,7 +300,7 @@ const quizApp = {
 
     loadBlocksData: async function () {
         try {
-            const response = await fetch("blocks.json");
+            const response = await fetch(this.rootUrl + "blocks.json");
             const data = await response.json();
             this.blocks = data;
         } catch (error) {
