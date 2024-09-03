@@ -859,10 +859,8 @@ const quizApp = {
             </section>
         `;
         // Inject the HTML
-        let scriptNode = document.querySelector("[data-quiz-script]");
-        var htmlNode = document.createElement('div');
-        htmlNode.innerHTML = html;
-        scriptNode.after(htmlNode);
+        let containerNode = document.getElementById("quiz-container");
+        containerNode.innerHTML = html;
     },
 
     // Build an activity
