@@ -473,7 +473,7 @@ const quizApp = {
     },
 
     injectHtml: function () {
-        return fetch(this.baseUrl + "_quiz-partial.html")
+        return fetch(this.baseUrl + "partial.html")
             .then((res) => res.text())
             .then((text) => {
                 // Inject the HTML
