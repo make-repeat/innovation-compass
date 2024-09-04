@@ -1,490 +1,497 @@
 document.addEventListener("DOMContentLoaded", function () {
-	quizApp.init();
-	// window.addEventListener("beforeunload", (event) => {
-	// 	// Cancel the event as stated by the standard.
-	// 	event.preventDefault();
-	// 	// Chrome requires returnValue to be set.
-	// 	event.returnValue = "";
-	// });
+    quizApp.init();
+    window.addEventListener("beforeunload", (event) => {
+        // Cancel the event as stated by the standard.
+        event.preventDefault();
+        // Chrome requires returnValue to be set.
+        event.returnValue = "";
+    });
 });
 
 const quizApp = {
-	hooks: {},
-	quiz: null,
-	blocks: null,
-	sections: {},
-	currentFrame: 0,
-	currentBlock: 0,
-	blockKeys: [],
-	activities: [],
-	baseUrl: "https://public-policy-lab.github.io/innovation-compass/",
+    hooks: {},
+    quiz: null,
+    blocks: null,
+    sections: {},
+    currentFrame: 0,
+    currentBlock: 0,
+    blockKeys: [],
+    activities: [],
+    baseUrl: "https://public-policy-lab.github.io/innovation-compass/",
 
-	init: function () {
-		if (window.location.hostname != "www.innovationcompass.io") {
-			this.baseUrl = "./";
-		}
+    init: function () {
+        if (window.location.hostname != "www.innovationcompass.io") {
+            this.baseUrl = "./";
+        }
 
-		this.injectHtml().then(() => {
-			this.initHooks();
-			this.loadQuizData();
-			this.loadBlocksData();
-		});
-	},
+        this.injectHtml().then(() => {
+            this.initHooks();
+            this.loadQuizData();
+            this.loadBlocksData();
+        });
+    },
 
-	initHooks: function () {
-		// Containers
-		this.hooks.containers = {
-			quiz: document.querySelector("[data-quiz-container]"),
-		};
+    initHooks: function () {
+        // Containers
+        this.hooks.containers = {
+            quiz: document.querySelector("[data-quiz-container]"),
+        };
 
-		// Headlines
-		this.hooks.headlines = {
-			quizTitle: document.querySelector("[data-quiz-title-headline]"),
-			quizQuestion: document.querySelector("[data-quiz-question-headline]"),
-		};
+        // Headlines
+        this.hooks.headlines = {
+            quizTitle: document.querySelector("[data-quiz-title-headline]"),
+            quizQuestion: document.querySelector("[data-quiz-question-headline]"),
+        };
 
-		// Templates
-		this.hooks.templates = {
-			start: document.querySelector("[data-template-start]"),
-			question: document.querySelector("[data-template-question]"),
-			title: document.querySelector("[data-template-title]"),
-			results: document.querySelector("[data-template-results]"),
-			slide: {
-				intro: document.querySelector("[data-slide-intro]"),
-				single: document.querySelector("[data-slide-single]"),
-				eyebrow: document.querySelector("[data-slide-eyebrow]"),
-				title: document.querySelector("[data-slide-title]"),
-				body: document.querySelector("[data-slide-body]"),
-				priority: document.querySelector("[data-slide-priority]"),
-			},
-			activities: document.querySelector("[data-activities]"),
-		};
+        // Templates
+        this.hooks.templates = {
+            start: document.querySelector("[data-template-start]"),
+            question: document.querySelector("[data-template-question]"),
+            title: document.querySelector("[data-template-title]"),
+            results: document.querySelector("[data-template-results]"),
+            slide: {
+                intro: document.querySelector("[data-slide-intro]"),
+                single: document.querySelector("[data-slide-single]"),
+                eyebrow: document.querySelector("[data-slide-eyebrow]"),
+                title: document.querySelector("[data-slide-title]"),
+                body: document.querySelector("[data-slide-body]"),
+                priority: document.querySelector("[data-slide-priority]"),
+            },
+            activities: document.querySelector("[data-activities]"),
+        };
 
-		// Buttons
-		this.hooks.buttons = {
-			start: document.querySelector("[data-start-button]"),
-			finish: document.querySelector("[data-finish-button]"),
-			nextFrame: document.querySelectorAll("[data-next-frame-button]"),
-			prevFrame: document.querySelectorAll("[data-prev-frame-button]"),
-			nextBlock: document.querySelector("[data-next-block-button]"),
-			prevBlock: document.querySelector("[data-prev-block-button]"),
-		};
+        // Buttons
+        this.hooks.buttons = {
+            start: document.querySelector("[data-start-button]"),
+            finish: document.querySelector("[data-finish-button]"),
+            nextFrame: document.querySelectorAll("[data-next-frame-button]"),
+            prevFrame: document.querySelectorAll("[data-prev-frame-button]"),
+            nextBlock: document.querySelector("[data-next-block-button]"),
+            prevBlock: document.querySelector("[data-prev-block-button]"),
+        };
 
-		this.hooks.buttons.start.addEventListener("click", () => {
-			this.startQuiz();
-		});
-		this.hooks.buttons.finish.addEventListener("click", () => {
-			this.finishQuiz();
-		});
-		this.hooks.buttons.nextFrame.forEach((item) => {
-			item.addEventListener("click", () => {
-				this.nextFrame();
-			});
-		});
-		this.hooks.buttons.prevFrame.forEach((item) => {
-			item.addEventListener("click", () => {
-				this.prevFrame();
-			});
-		});
-		this.hooks.buttons.nextBlock.addEventListener("click", () => {
-			this.nextBlock();
-		});
-		this.hooks.buttons.prevBlock.addEventListener("click", () => {
-			this.prevBlock();
-		});
-		// Content
-		this.hooks.questionHeadline = document.querySelector("[data-question-headline]");
-		this.hooks.questionBlurb = document.querySelector("[data-question-blurb]");
+        this.hooks.buttons.start.addEventListener("click", () => {
+            this.startQuiz();
+        });
+        this.hooks.buttons.finish.addEventListener("click", () => {
+            this.finishQuiz();
+        });
+        this.hooks.buttons.nextFrame.forEach((item) => {
+            item.addEventListener("click", () => {
+                this.nextFrame();
+            });
+        });
+        this.hooks.buttons.prevFrame.forEach((item) => {
+            item.addEventListener("click", () => {
+                this.prevFrame();
+            });
+        });
+        this.hooks.buttons.nextBlock.addEventListener("click", () => {
+            this.nextBlock();
+        });
+        this.hooks.buttons.prevBlock.addEventListener("click", () => {
+            this.prevBlock();
+        });
+        // Content
+        this.hooks.questionHeadline = document.querySelector("[data-question-headline]");
+        this.hooks.questionBlurb = document.querySelector("[data-question-blurb]");
 
-		this.hooks.titleHeadline = document.querySelector("[data-title-headline]");
-		this.hooks.titleBlurb = document.querySelector("[data-title-blurb]");
+        this.hooks.titleHeadline = document.querySelector("[data-title-headline]");
+        this.hooks.titleBlurb = document.querySelector("[data-title-blurb]");
 
-		this.hooks.category = {
-			body: document.querySelector("[data-category-body]"),
-			number: document.querySelector("[data-category-number]"),
-		};
-		this.hooks.progress = {
-			bar: document.querySelector("[data-progress-bar-fill]"),
-			percent: document.querySelector("[data-progress-percent]"),
-		};
+        this.hooks.category = {
+            body: document.querySelector("[data-category-body]"),
+            number: document.querySelector("[data-category-number]"),
+        };
+        this.hooks.progress = {
+            bar: document.querySelector("[data-progress-bar-fill]"),
+            percent: document.querySelector("[data-progress-percent]"),
+        };
 
-		// Hands
-		this.hooks.hands = document.querySelectorAll("[data-hand]");
+        // Hands
+        this.hooks.hands = document.querySelectorAll("[data-hand]");
 
-		// Errors
-		this.hooks.errorMessage = document.querySelector("[data-error-message]");
-	},
+        // Errors
+        this.hooks.errorMessage = document.querySelector("[data-error-message]");
+    },
 
-	startQuiz: function () {
-		this.hideElement(this.hooks.templates.start);
-		this.showElement(this.hooks.templates.question);
-		this.renderFrame();
-	},
+    startQuiz: function () {
+        this.hideElement(this.hooks.templates.start);
+        this.showElement(this.hooks.templates.question);
+        this.renderFrame();
+    },
 
-	prevFrame: function () {
-		if (this.currentFrame > 0) {
-			this.currentFrame--;
-			this.renderFrame();
-		}
-	},
+    prevFrame: function () {
+        if (this.currentFrame > 0) {
+            this.currentFrame--;
+            this.renderFrame();
+        }
+    },
 
-	nextFrame: function () {
-		// Get current answer from radio buttons
-		const frame = this.quiz[this.currentFrame];
+    nextFrame: function () {
 
-		if (frame.weighting) {
-			const answer = document.querySelector("[data-answer]:checked");
-			if (answer) {
-				this.quiz[this.currentFrame].answer = answer.value;
-				this.currentFrame++;
-				this.renderFrame();
-			} else {
-				this.hooks.errorMessage.classList.remove("hidden");
-			}
-		} else {
-			this.currentFrame++;
-			this.renderFrame();
-		}
-	},
+        // Check to see if current frame is the last frame
+        if (this.currentFrame === this.quiz.length - 1) {
+            this.finishQuiz();
+            return;
+        }
 
-	prevBlock: function () {
-		if (this.currentBlock > 0) {
-			this.currentBlock--;
-		} else {
-			this.currentBlock = 0;
-		}
-		this.renderBlock();
-	},
+        // Get current answer from radio buttons
+        const frame = this.quiz[this.currentFrame];
 
-	nextBlock: function () {
-		if (this.currentBlock < this.blockKeys.length - 1) {
-			this.currentBlock++;
-		} else {
-			this.currentBlock = 0;
-		}
-		this.renderBlock();
-	},
+        if (frame.weighting) {
+            const answer = document.querySelector("[data-answer]:checked");
+            if (answer) {
+                this.quiz[this.currentFrame].answer = answer.value;
+                this.currentFrame++;
+                this.renderFrame();
+            } else {
+                this.hooks.errorMessage.classList.remove("hidden");
+            }
+        } else {
+            this.currentFrame++;
+            this.renderFrame();
+        }
+    },
 
-	renderFrame: function () {
-		// Hide error message
-		this.hooks.errorMessage.classList.add("hidden");
+    prevBlock: function () {
+        if (this.currentBlock > 0) {
+            this.currentBlock--;
+        } else {
+            this.currentBlock = 0;
+        }
+        this.renderBlock();
+    },
 
-		// Render the frame
-		if (this.currentFrame < this.quiz.length) {
-			const frame = this.quiz[this.currentFrame];
-			if (frame.weighting) {
-				// If the frame is a question
-				this.renderQuestion(frame);
-			} else {
-				this.renderTitle(frame);
-			}
-		} else {
-			// If the quiz is finished
-			this.hideElement(this.hooks.templates.question);
-			this.hideElement(this.hooks.templates.title);
-			this.showElement(this.hooks.templates.results);
-		}
-	},
+    nextBlock: function () {
+        if (this.currentBlock < this.blockKeys.length - 1) {
+            this.currentBlock++;
+        } else {
+            this.currentBlock = 0;
+        }
+        this.renderBlock();
+    },
 
-	renderQuestion: function (frame) {
-		this.hideElement(this.hooks.templates.title);
-		this.showElement(this.hooks.templates.question);
+    renderFrame: function () {
+        // Hide error message
+        this.hooks.errorMessage.classList.add("hidden");
 
-		this.hooks.questionHeadline.innerHTML = frame.activity_name;
-		this.hooks.questionBlurb.innerHTML = frame.blurb;
+        // Render the frame
+        if (this.currentFrame < this.quiz.length) {
+            const frame = this.quiz[this.currentFrame];
+            if (frame.weighting) {
+                // If the frame is a question
+                this.renderQuestion(frame);
+            } else {
+                this.renderTitle(frame);
+            }
+        } else {
+            // If the quiz is finished
+            this.hideElement(this.hooks.templates.question);
+            this.hideElement(this.hooks.templates.title);
+            this.showElement(this.hooks.templates.results);
+        }
+    },
 
-		this.hooks.category.body.innerHTML = frame.category;
-		this.hooks.category.number.innerHTML = this.getSectionNumber() + " of " + Object.keys(this.sections).length;
+    renderQuestion: function (frame) {
+        this.hideElement(this.hooks.templates.title);
+        this.showElement(this.hooks.templates.question);
 
-		let percentage = ((this.getSectionProgress() + 1) / this.sections[frame.category]) * 100;
-		this.hooks.progress.bar.style.width = percentage + "%";
-		this.hooks.progress.percent.innerHTML = Math.round(percentage) + "%";
+        this.hooks.questionHeadline.innerHTML = frame.activity_name;
+        this.hooks.questionBlurb.innerHTML = frame.blurb;
 
-		const existingAnswer = this.quiz[this.currentFrame].answer;
-		if (existingAnswer) {
-			document.querySelector("[data-answer-" + existingAnswer + "]").checked = true;
-		} else {
-			let checked_answer = document.querySelector("[data-answer]:checked");
-			if (checked_answer) {
-				checked_answer.checked = false;
-			}
-		}
+        this.hooks.category.body.innerHTML = frame.category;
+        this.hooks.category.number.innerHTML = this.getSectionNumber() + " of " + Object.keys(this.sections).length;
 
-		// Set the theme
-		this.setTheme(frame.category, "question");
-	},
+        let percentage = ((this.getSectionProgress() + 1) / this.sections[frame.category]) * 100;
+        this.hooks.progress.bar.style.width = percentage + "%";
+        this.hooks.progress.percent.innerHTML = Math.round(percentage) + "%";
 
-	renderTitle: function (frame) {
-		this.hideElement(this.hooks.templates.question);
-		this.showElement(this.hooks.templates.title);
-		this.hooks.titleHeadline.innerHTML = frame.activity_name;
-		this.hooks.titleBlurb.innerHTML = frame.blurb;
+        const existingAnswer = this.quiz[this.currentFrame].answer;
+        if (existingAnswer) {
+            document.querySelector("[data-answer-" + existingAnswer + "]").checked = true;
+        } else {
+            let checked_answer = document.querySelector("[data-answer]:checked");
+            if (checked_answer) {
+                checked_answer.checked = false;
+            }
+        }
 
-		// Set the theme
-		this.setTheme(frame.category, "title");
-	},
+        // Set the theme
+        this.setTheme(frame.category, "question");
+    },
 
-	renderResults: function () {
-		this.hideElement(this.hooks.templates.start);
-		this.hideElement(this.hooks.templates.question);
-		this.hideElement(this.hooks.templates.title);
-		this.showElement(this.hooks.templates.results);
+    renderTitle: function (frame) {
+        this.hideElement(this.hooks.templates.question);
+        this.showElement(this.hooks.templates.title);
+        this.hooks.titleHeadline.innerHTML = frame.activity_name;
+        this.hooks.titleBlurb.innerHTML = frame.blurb;
 
-		console.log("renderResults", this.blocks, this.blocks.length);
+        // Set the theme
+        this.setTheme(frame.category, "title");
+    },
 
-		this.hooks.hands.forEach((hand) => {
-			hand.addEventListener("click", () => {
-				this.hooks.hands.forEach((hand) => {
-					hand.classList.remove("is--focused");
-				});
+    renderResults: function () {
+        this.hideElement(this.hooks.templates.start);
+        this.hideElement(this.hooks.templates.question);
+        this.hideElement(this.hooks.templates.title);
+        this.showElement(this.hooks.templates.results);
 
-				hand.classList.add("is--focused");
+        console.log("renderResults", this.blocks, this.blocks.length);
 
-				// Get the selected hand and set the current block
-				const selectedHandId = hand.getAttribute("data-hand-block-id");
-				for (let block in this.blocks) {
-					if (block === selectedHandId) {
-						this.currentBlock = this.blockKeys.indexOf(block);
-						this.renderBlock();
-					}
-				}
-			});
-		});
+        this.hooks.hands.forEach((hand) => {
+            hand.addEventListener("click", () => {
+                this.hooks.hands.forEach((hand) => {
+                    hand.classList.remove("is--focused");
+                });
 
-		// Loop through the blocks and render the results
-		for (let block in this.blocks) {
-			const hand = document.querySelector("[data-hand-block-id='" + block + "']");
-			const average = this.blocks[block].average;
+                hand.classList.add("is--focused");
 
-			if (hand && average) {
-				hand.setAttribute("data-hand-reach", average);
-			}
-		}
-	},
+                // Get the selected hand and set the current block
+                const selectedHandId = hand.getAttribute("data-hand-block-id");
+                for (let block in this.blocks) {
+                    if (block === selectedHandId) {
+                        this.currentBlock = this.blockKeys.indexOf(block);
+                        this.renderBlock();
+                    }
+                }
+            });
+        });
 
-	renderBlock: function () {
-		// Hide the intro slide
-		this.hideElement(this.hooks.templates.slide.intro);
-		// Show the single slide
-		this.showElement(this.hooks.templates.slide.single);
+        // Loop through the blocks and render the results
+        for (let block in this.blocks) {
+            const hand = document.querySelector("[data-hand-block-id='" + block + "']");
+            const average = this.blocks[block].average;
 
-		// Get the current block
-		const block = this.blocks[this.blockKeys[this.currentBlock]];
+            if (hand && average) {
+                hand.setAttribute("data-hand-reach", average);
+            }
+        }
+    },
 
-		// Set the relevant hand to be focused
-		this.hooks.hands.forEach((hand) => {
-			hand.classList.remove("is--focused");
+    renderBlock: function () {
+        // Hide the intro slide
+        this.hideElement(this.hooks.templates.slide.intro);
+        // Show the single slide
+        this.showElement(this.hooks.templates.slide.single);
 
-			const handBlockId = hand.getAttribute("data-hand-block-id");
-			if (handBlockId === this.blockKeys[this.currentBlock]) {
-				hand.classList.add("is--focused");
-			}
-		});
+        // Get the current block
+        const block = this.blocks[this.blockKeys[this.currentBlock]];
 
-		// Output data to block
-		this.hooks.templates.slide.eyebrow.innerHTML = block.category;
-		this.hooks.templates.slide.title.innerHTML = block.title;
-		this.hooks.templates.slide.body.innerHTML = block.description;
-		this.hooks.templates.slide.priority.innerHTML = block.priority;
-	},
+        // Set the relevant hand to be focused
+        this.hooks.hands.forEach((hand) => {
+            hand.classList.remove("is--focused");
 
-	setTheme: function (category, type) {
-		switch (category + "-" + type) {
-			case "community-title":
-				this.hooks.containers.quiz.style.background = "#5D62F4";
-				this.hooks.headlines.quizTitle.style.color = "#DFE0FD";
-				this.hooks.progress.bar.style.background = "#5D62F4";
-				break;
-			case "community-question":
-				this.hooks.containers.quiz.style.background = "#DFE0FD";
-				this.hooks.headlines.quizQuestion.style.color = "#5D62F4";
-				this.hooks.progress.bar.style.background = "#5D62F4";
-				break;
-			case "entrepreneurship-title":
-				this.hooks.containers.quiz.style.background = "#E76446";
-				this.hooks.headlines.quizTitle.style.color = "#FAE0DA";
-				this.hooks.progress.bar.style.background = "#E76446";
-				break;
-			case "entrepreneurship-question":
-				this.hooks.containers.quiz.style.background = "#FAE0DA";
-				this.hooks.headlines.quizQuestion.style.color = "#E76446";
-				this.hooks.progress.bar.style.background = "#E76446";
-				break;
-			case "impact-title":
-				this.hooks.containers.quiz.style.background = "#3B817E";
-				this.hooks.headlines.quizTitle.style.color = "#D0DEDD";
-				this.hooks.progress.bar.style.background = "#3B817E";
-				break;
-			case "impact-question":
-				this.hooks.containers.quiz.style.background = "#D0DEDD";
-				this.hooks.headlines.quizQuestion.style.color = "#3B817E";
-				this.hooks.progress.bar.style.background = "#3B817E";
-				break;
-		}
-	},
+            const handBlockId = hand.getAttribute("data-hand-block-id");
+            if (handBlockId === this.blockKeys[this.currentBlock]) {
+                hand.classList.add("is--focused");
+            }
+        });
 
-	loadQuizData: async function () {
-		try {
-			const response = await fetch(this.baseUrl + "quiz.json");
-			const data = await response.json();
-			this.quiz = data;
-			this.makeSections();
-		} catch (error) {
-			console.error("Error loading quiz data:", error);
-		}
-	},
+        // Output data to block
+        this.hooks.templates.slide.eyebrow.innerHTML = block.category;
+        this.hooks.templates.slide.title.innerHTML = block.title;
+        this.hooks.templates.slide.body.innerHTML = block.description;
+        this.hooks.templates.slide.priority.innerHTML = block.priority;
+    },
 
-	loadBlocksData: async function () {
-		try {
-			const response = await fetch(this.baseUrl + "blocks.json");
-			const data = await response.json();
-			this.blocks = data;
-		} catch (error) {
-			console.error("Error loading blocks data:", error);
-		}
-	},
+    setTheme: function (category, type) {
+        switch (category + "-" + type) {
+            case "community-title":
+                this.hooks.containers.quiz.style.background = "#5D62F4";
+                this.hooks.headlines.quizTitle.style.color = "#DFE0FD";
+                this.hooks.progress.bar.style.background = "#5D62F4";
+                break;
+            case "community-question":
+                this.hooks.containers.quiz.style.background = "#DFE0FD";
+                this.hooks.headlines.quizQuestion.style.color = "#5D62F4";
+                this.hooks.progress.bar.style.background = "#5D62F4";
+                break;
+            case "entrepreneurship-title":
+                this.hooks.containers.quiz.style.background = "#E76446";
+                this.hooks.headlines.quizTitle.style.color = "#FAE0DA";
+                this.hooks.progress.bar.style.background = "#E76446";
+                break;
+            case "entrepreneurship-question":
+                this.hooks.containers.quiz.style.background = "#FAE0DA";
+                this.hooks.headlines.quizQuestion.style.color = "#E76446";
+                this.hooks.progress.bar.style.background = "#E76446";
+                break;
+            case "impact-title":
+                this.hooks.containers.quiz.style.background = "#3B817E";
+                this.hooks.headlines.quizTitle.style.color = "#D0DEDD";
+                this.hooks.progress.bar.style.background = "#3B817E";
+                break;
+            case "impact-question":
+                this.hooks.containers.quiz.style.background = "#D0DEDD";
+                this.hooks.headlines.quizQuestion.style.color = "#3B817E";
+                this.hooks.progress.bar.style.background = "#3B817E";
+                break;
+        }
+    },
 
-	makeSections: function () {
-		let sections = {};
-		this.quiz.forEach((item, index) => {
-			if (item.weighting) {
-				if (!sections[item.category]) {
-					sections[item.category] = 0;
-				}
-				sections[item.category]++;
-			}
-		});
-		this.sections = sections;
-	},
+    loadQuizData: async function () {
+        try {
+            const response = await fetch(this.baseUrl + "quiz.json");
+            const data = await response.json();
+            this.quiz = data;
+            this.makeSections();
+        } catch (error) {
+            console.error("Error loading quiz data:", error);
+        }
+    },
 
-	getSectionProgress: function () {
-		// Go through each question to determine the progress
-		let sectionProgress = 0;
-		for (let i = 0; i < this.currentFrame; i++) {
-			if (this.quiz[i].weighting) {
-				sectionProgress++;
-			} else {
-				sectionProgress = 0;
-			}
-		}
-		return sectionProgress - 1;
-	},
+    loadBlocksData: async function () {
+        try {
+            const response = await fetch(this.baseUrl + "blocks.json");
+            const data = await response.json();
+            this.blocks = data;
+        } catch (error) {
+            console.error("Error loading blocks data:", error);
+        }
+    },
 
-	getSectionNumber: function () {
-		let sectionNumber = 0;
-		for (let i = 0; i < this.currentFrame; i++) {
-			if (!this.quiz[i].weighting) {
-				sectionNumber++;
-			}
-		}
-		return sectionNumber;
-	},
+    makeSections: function () {
+        let sections = {};
+        this.quiz.forEach((item, index) => {
+            if (item.weighting) {
+                if (!sections[item.category]) {
+                    sections[item.category] = 0;
+                }
+                sections[item.category]++;
+            }
+        });
+        this.sections = sections;
+    },
 
-	hideElement: function (element) {
-		element.classList.add("hidden");
-	},
+    getSectionProgress: function () {
+        // Go through each question to determine the progress
+        let sectionProgress = 0;
+        for (let i = 0; i < this.currentFrame; i++) {
+            if (this.quiz[i].weighting) {
+                sectionProgress++;
+            } else {
+                sectionProgress = 0;
+            }
+        }
+        return sectionProgress - 1;
+    },
 
-	showElement: function (element) {
-		element.classList.remove("hidden");
-	},
+    getSectionNumber: function () {
+        let sectionNumber = 0;
+        for (let i = 0; i < this.currentFrame; i++) {
+            if (!this.quiz[i].weighting) {
+                sectionNumber++;
+            }
+        }
+        return sectionNumber;
+    },
 
-	finishQuiz: function () {
-		// Loop through the quiz and randomly
-		// asssign an answer value from 1-5
-		this.quiz.forEach((item) => {
-			if (item.weighting) {
-				item.answer = Math.floor(Math.random() * 4) + 1;
-			}
-		});
+    hideElement: function (element) {
+        element.classList.add("hidden");
+    },
 
-		this.doCalculations();
-	},
+    showElement: function (element) {
+        element.classList.remove("hidden");
+    },
 
-	doCalculations: function () {
-		this.quiz.forEach((item) => {
-			if (item.weighting) {
-				item.priority = item.answer * item.weighting;
-				this.blocks[item.building_block].items.push(item);
-			}
-		});
+    finishQuiz: function () {
+        // Loop through the quiz and randomly
+        // asssign an answer value from 1-5
+        this.quiz.forEach((item) => {
+            if (item.weighting) {
+                item.answer = Math.floor(Math.random() * 4) + 1;
+            }
+        });
 
-		// Calculate the average for each block
-		for (let block in this.blocks) {
-			let total = 0;
-			this.blocks[block].items.forEach((item) => {
-				total += item.priority;
-			});
-			this.blocks[block].average = total / this.blocks[block].items.length;
+        this.doCalculations();
+    },
 
-			// Round
-			this.blocks[block].average = Math.round(this.blocks[block].average);
-		}
+    doCalculations: function () {
+        this.quiz.forEach((item) => {
+            if (item.weighting) {
+                item.priority = item.answer * item.weighting;
+                this.blocks[item.building_block].items.push(item);
+            }
+        });
 
-		// Add priority to the blocks
-		for (let block in this.blocks) {
-			this.blocks[block].priority = this.getPriority(this.blocks[block].average);
-		}
+        // Calculate the average for each block
+        for (let block in this.blocks) {
+            let total = 0;
+            this.blocks[block].items.forEach((item) => {
+                total += item.priority;
+            });
+            this.blocks[block].average = total / this.blocks[block].items.length;
 
-		this.blockKeys = Object.keys(this.blocks);
+            // Round
+            this.blocks[block].average = Math.round(this.blocks[block].average);
+        }
 
-		// Render
-		this.renderResults();
+        // Add priority to the blocks
+        for (let block in this.blocks) {
+            this.blocks[block].priority = this.getPriority(this.blocks[block].average);
+        }
 
-		// Build activities
-		this.buildActivities();
-	},
+        this.blockKeys = Object.keys(this.blocks);
 
-	buildActivities: function () {
-		// Create activities list
-		this.quiz.forEach((item, index) => {
-			if (item.weighting) {
-				item.block_priority = this.blocks[item.building_block].priority;
-				this.activities.push(item);
-			}
-		});
+        // Render
+        this.renderResults();
 
-		this.activities.sort(this.activitySort);
+        // Build activities
+        this.buildActivities();
+    },
 
-		this.activities.forEach((activity, index) => {
-			let html = this.buildActivity(activity);
-			this.hooks.templates.activities.innerHTML += html;
-		});
-	},
+    buildActivities: function () {
+        // Create activities list
+        this.quiz.forEach((item, index) => {
+            if (item.weighting) {
+                item.block_priority = this.blocks[item.building_block].priority;
+                this.activities.push(item);
+            }
+        });
 
-	activitySort: function (a, b) {
-		if (a.priority > b.priority) {
-			return -1;
-		}
-		if (a.priority < b.priority) {
-			return 1;
-		}
-		return 0;
-	},
+        this.activities.sort(this.activitySort);
 
-	getPriority: function (average) {
-		if (average <= 3) {
-			return "low";
-		} else if (average <= 7) {
-			return "medium";
-		} else {
-			return "high";
-		}
-	},
+        this.activities.forEach((activity, index) => {
+            let html = this.buildActivity(activity);
+            this.hooks.templates.activities.innerHTML += html;
+        });
+    },
 
-	injectHtml: function () {
-		return fetch(this.baseUrl + "partial.html")
-			.then((res) => res.text())
-			.then((text) => {
-				// Inject the HTML
-				let containerNode = document.getElementById("quiz-container");
-				containerNode.innerHTML = text;
-			})
-			.catch((e) => console.error(e));
-	},
+    activitySort: function (a, b) {
+        if (a.priority > b.priority) {
+            return -1;
+        }
+        if (a.priority < b.priority) {
+            return 1;
+        }
+        return 0;
+    },
 
-	// Build an activity
-	buildActivity: function (activity) {
-		let html = `
+    getPriority: function (average) {
+        if (average <= 3) {
+            return "low";
+        } else if (average <= 7) {
+            return "medium";
+        } else {
+            return "high";
+        }
+    },
+
+    injectHtml: function () {
+        return fetch(this.baseUrl + "partial.html")
+            .then((res) => res.text())
+            .then((text) => {
+                // Inject the HTML
+                let containerNode = document.getElementById("quiz-container");
+                containerNode.innerHTML = text;
+            })
+            .catch((e) => console.error(e));
+    },
+
+    // Build an activity
+    buildActivity: function (activity) {
+        let html = `
             <div
                 role="list"
                 class="">
@@ -519,6 +526,6 @@ const quizApp = {
                 </div>
             </div>
         `;
-		return html;
-	},
+        return html;
+    },
 };
