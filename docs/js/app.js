@@ -327,6 +327,11 @@ const quizApp = {
                 this.hooks.headlines.quizQuestion.style.color = "#3B817E";
                 this.hooks.progress.bar.style.background = "#3B817E";
                 break;
+            case "results-page":
+                this.hooks.containers.quiz.style.background = "#FFFFFF";
+                this.hooks.headlines.quizTitle.style.color = "#042159";
+                this.hooks.progress.bar.style.background = "#000000";
+                break;
         }
     },
 
@@ -396,6 +401,8 @@ const quizApp = {
     },
 
     finishQuiz: function () {
+        this.setTheme("results", "page");
+
         // Loop through the quiz and randomly
         // asssign an answer value from 1-5
         this.quiz.forEach((item) => {
