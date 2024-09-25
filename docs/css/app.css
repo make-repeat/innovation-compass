@@ -10,6 +10,8 @@
 	--color-navy-light: #e9eef7;
 	--color-purple: #5d62f4;
 	--color-purple-light: #dfe0fd;
+	--color-green: #3b817e;
+	--color-orange: #c45036;
 	--color-neutral: #ecede7;
 	--color-white: #fff;
 	--color-black: #000;
@@ -18,6 +20,18 @@
 	font-family: "GT Planar";
 	font-weight: 300;
 	color: var(--color-navy);
+}
+
+.text-purple {
+	color: var(--color-purple);
+}
+
+.text-green {
+	color: var(--color-green);
+}
+
+.text-orange {
+	color: var(--color-orange);
 }
 
 .quiz strong {
@@ -421,6 +435,19 @@
 	overflow-y: scroll;
 }
 
+.filter-group__options .options__title {
+	font-family: "GT Planar";
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 13.8px;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+}
+
+.filter-group__options .options__title ~ .options__title {
+	margin-top: 15px;
+}
+
 .filter-group__options .options__overlay {
 	position: absolute;
 	bottom: 0;
@@ -618,6 +645,19 @@
 	.quiz__filters {
 		grid-column: span 3;
 		margin-top: 48px;
+	}
+
+	.toggle__indicator {
+		display: none;
+	}
+
+	.toggle__target {
+		height: auto;
+	}
+
+	.filter-group__options .options {
+		max-height: none;
+		overflow-y: auto;
 	}
 
 	.quiz__activities {
