@@ -30,6 +30,7 @@ const quizApp = {
 			this.loadBlocksData();
 			tabsApp.init();
 			toggleApp.init();
+			tooltipApp.init();
 		});
 	},
 
@@ -455,7 +456,10 @@ const quizApp = {
 
 		this.activities.forEach((activity, index) => {
 			let html = this.buildActivity(activity);
-			this.hooks.templates.activities.innerHTML += html;
+			// this.hooks.templates.activities.innerHTML += html;
+			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
+			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
+			this.hooks.templates.activities.insertAdjacentHTML("beforeend", html);
 		});
 	},
 
@@ -577,12 +581,48 @@ const toggleApp = {
 				// get the target
 				const target = toggle.getAttribute("data-toggle");
 				const targetElements = document.querySelectorAll(`[data-toggle-target="${target}"]`);
-				console.log(targetElements);
+
 				// toggle the target is-open class
 				targetElements.forEach((element) => {
 					element.classList.toggle("toggle__target--is-open");
 				});
 			});
 		});
+	},
+};
+
+const tooltipApp = {
+	init: function () {
+		const tooltips = document.querySelectorAll("[data-tooltip]");
+		const showEvents = ["mouseover", "focus"];
+		const hideEvents = ["mouseout", "blur"];
+		// For each tooltip
+		tooltips.forEach((tooltip) => {
+			// Bind show tooltip events
+			showEvents.forEach((event) => {
+				tooltip.addEventListener(event, (e) => {
+					e.preventDefault();
+					this.showTooltip(tooltip);
+				});
+			});
+
+			// Bind hide tooltip events
+			hideEvents.forEach((event) => {
+				tooltip.addEventListener(event, (e) => {
+					e.preventDefault();
+					this.hideTooltip(tooltip);
+				});
+			});
+		});
+	},
+
+	showTooltip: function (tooltip) {
+		const tooltipContent = tooltip.querySelector("[data-tooltip-content]");
+		tooltipContent.classList.remove("hidden");
+	},
+
+	hideTooltip: function (tooltip) {
+		const tooltipContent = tooltip.querySelector("[data-tooltip-content]");
+		tooltipContent.classList.add("hidden");
 	},
 };

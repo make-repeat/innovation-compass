@@ -1,37 +1,16 @@
+@import url("_variables.css");
 @import url("utilities.css");
 @import url("clock.css");
+@import url("text-colors.css");
+@import url("tooltips.css");
 
 /**
  * Quiz 
  * ============================================================ */
-
 .quiz {
-	--color-navy: #042159;
-	--color-navy-light: #e9eef7;
-	--color-purple: #5d62f4;
-	--color-purple-light: #dfe0fd;
-	--color-green: #3b817e;
-	--color-orange: #c45036;
-	--color-neutral: #ecede7;
-	--color-white: #fff;
-	--color-black: #000;
-	--color-error: #c4291c;
-
 	font-family: "GT Planar";
 	font-weight: 300;
 	color: var(--color-navy);
-}
-
-.text-purple {
-	color: var(--color-purple);
-}
-
-.text-green {
-	color: var(--color-green);
-}
-
-.text-orange {
-	color: var(--color-orange);
 }
 
 .quiz strong {
@@ -519,6 +498,10 @@
 .quiz__activities .activity-group__title {
 	font-size: 14px;
 	line-height: 22px;
+	background: none;
+	margin: 0;
+	padding: 0;
+	text-align: left;
 }
 
 .quiz__activities .bb-activity-tile-title {
