@@ -26,11 +26,46 @@ const quizApp = {
 
 		this.injectHtml().then(() => {
 			this.initHooks();
-			this.loadQuizData();
-			this.loadBlocksData();
+			this.loadAllData();
+			//this.loadBlocksData();
 			tabsApp.init();
 			toggleApp.init();
 		});
+	},
+
+	checkToken: function () {
+		var token = this.getQueryVariable('r');
+
+		var answers = token.split('.');
+		var answers_array = [];
+		for (var i = 0; i < answers.length; i++) {
+			var parts = answers[i].split('-');
+			answers_array[parts[0]] = parts[1];
+		}
+
+		this.quiz.forEach((item, index) => {
+			if (item.weighting) {
+				this.quiz[index].answer = answers_array[index];
+			}
+		});
+
+		console.log(this.quiz);
+
+		if (token) {
+			this.finishQuiz();
+		}
+	},
+
+	getQueryVariable: function (variable) {
+		var query = window.location.hash.substring(1);
+		var vars = query.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			if (decodeURIComponent(pair[0]) == variable) {
+				return decodeURIComponent(pair[1]);
+			}
+		}
+		console.log('Query variable %s not found', variable);
 	},
 
 	initHooks: function () {
@@ -331,24 +366,29 @@ const quizApp = {
 		}
 	},
 
-	loadQuizData: async function () {
-		try {
-			const response = await fetch(this.baseUrl + "quiz.json");
-			const data = await response.json();
-			this.quiz = data;
-			this.makeSections();
-		} catch (error) {
-			console.error("Error loading quiz data:", error);
-		}
-	},
+	loadAllData: async function () {
+		const urls = {
+			quiz: this.baseUrl + "quiz.json",
+			blocks: this.baseUrl + "blocks.json"
+		};
 
-	loadBlocksData: async function () {
 		try {
-			const response = await fetch(this.baseUrl + "blocks.json");
-			const data = await response.json();
-			this.blocks = data;
+			const responses = await Promise.all(
+				Object.entries(urls).map(async ([key, url]) => {
+					const response = await fetch(url);
+					const data = await response.json();
+					return [key, data];
+				})
+			);
+
+			const result = Object.fromEntries(responses);
+			this.quiz = result.quiz;
+			this.blocks = result.blocks;
+			this.checkToken();
+			return true;
 		} catch (error) {
-			console.error("Error loading blocks data:", error);
+			console.error('Error fetching data:', error);
+			throw error;
 		}
 	},
 
@@ -397,15 +437,24 @@ const quizApp = {
 	},
 
 	finishQuiz: function () {
+
+		// window.gtag("event", "quiz", {
+		// 	event_category: 'complete',
+		// 	event_label: '{1:3,2:1,3:5}',
+		// 	event_value: "1",
+		// });
+
 		// Loop through the quiz and randomly
 		// asssign an answer value from 1-5
-		this.quiz.forEach((item) => {
-			if (item.weighting) {
-				item.answer = Math.floor(Math.random() * 4) + 1;
-			}
-		});
+		// this.quiz.forEach((item) => {
+		// 	if (item.weighting) {
+		// 		item.answer = Math.floor(Math.random() * 4) + 1;
+		// 	}
+		// });
 
 		this.doCalculations();
+
+		this.buildToken();
 	},
 
 	doCalculations: function () {
@@ -529,6 +578,25 @@ const quizApp = {
 
 		return html;
 	},
+
+	buildToken: function () {
+		console.log("Building token");
+		let token = "";
+
+		this.quiz.forEach((item, index) => {
+			if (item.weighting) {
+				token += index + "-" + item.answer + ".";
+			}
+		});
+
+		token = token.slice(0, -1);
+		token += "";
+
+		searchParams = new URLSearchParams();
+		searchParams.set("r", token);
+		window.location = '#' + searchParams.toString();
+	}
+
 };
 
 const tabsApp = {
