@@ -27,10 +27,11 @@ const quizApp = {
 		this.injectHtml().then(() => {
 			this.initHooks();
 			this.loadAllData();
-			//this.loadBlocksData();
-			tabsApp.init();
-			toggleApp.init();
-			tooltipApp.init();
+			this.initTabs();
+			this.initFiltersCurated();
+			this.initFiltersAll();
+			// toggleApp.init();
+			// tooltipApp.init();
 		});
 	},
 
@@ -49,8 +50,6 @@ const quizApp = {
 				this.quiz[index].answer = answers_array[index];
 			}
 		});
-
-		console.log(this.quiz);
 
 		if (token) {
 			this.finishQuiz();
@@ -95,7 +94,10 @@ const quizApp = {
 				body: document.querySelector("[data-slide-body]"),
 				priority: document.querySelector("[data-slide-priority]"),
 			},
-			activities: document.querySelector("[data-activities]"),
+			activities: {
+				curated: document.querySelector("[data-activities-curated]"),
+				all: document.querySelector("[data-activities-all]"),
+			},
 		};
 
 		// Buttons
@@ -501,18 +503,28 @@ const quizApp = {
 			}
 		});
 
-		this.activities.sort(this.activitySort);
+		this.activities.sort(this.prioritySort);
 
 		this.activities.forEach((activity, index) => {
-			let html = this.buildActivity(activity);
+			let html = this.buildActivity('curated', activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
-			this.hooks.templates.activities.insertAdjacentHTML("beforeend", html);
+			this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
+		});
+
+		this.activities.sort(this.preparednessSort);
+
+		this.activities.forEach((activity, index) => {
+			let html = this.buildActivity('all', activity);
+			// this.hooks.templates.activities.innerHTML += html;
+			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
+			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
+			this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
 		});
 	},
 
-	activitySort: function (a, b) {
+	prioritySort: function (a, b) {
 		if (a.priority > b.priority) {
 			return -1;
 		}
@@ -522,13 +534,39 @@ const quizApp = {
 		return 0;
 	},
 
+	preparednessSort: function (a, b) {
+		if (a.answer > b.answer) {
+			return -1;
+		}
+		if (a.answer < b.answer) {
+			return 1;
+		}
+		return 0;
+	},
+
 	getPriority: function (average) {
 		if (average <= 3) {
-			return "low";
+			return "low_priority";
 		} else if (average <= 7) {
-			return "medium";
+			return "medium_priority";
 		} else {
-			return "high";
+			return "high_priority";
+		}
+	},
+
+	getPreparedness: function (answer) {
+		if (answer == 1) {
+			return "unprepared";
+		} else if (answer == 2) {
+			return "somewhat_prepared";
+		} else if (answer == 3) {
+			return "adequately_prepared";
+		} else if (answer == 4) {
+			return "very_prepared";
+		} else if (answer == 5) {
+			return "extremely_prepared";
+		} else {
+			return "unknown_prepareness";
 		}
 	},
 
@@ -544,11 +582,19 @@ const quizApp = {
 	},
 
 	// Build an activity
-	buildActivity: function (activity) {
+	buildActivity: function (type, activity) {
+		let priority = this.getPriority(activity.priority);
+		let preparedness = this.getPreparedness(activity.answer);
+		if (type == "curated") {
+			var classes = activity.building_block + " " + priority;
+		} else {
+			var classes = activity.building_block + " " + preparedness;
+		}
 		let html = `
 			<div
 				role="list"
-				class="">
+				class="${classes}"
+				data-activity-${type}>
 				<div
 					role="listitem"
 					class="collection-item-4 w-dyn-item w-col w-col-4">
@@ -583,28 +629,7 @@ const quizApp = {
 		return html;
 	},
 
-	buildToken: function () {
-		console.log("Building token");
-		let token = "";
-
-		this.quiz.forEach((item, index) => {
-			if (item.weighting) {
-				token += index + "-" + item.answer + ".";
-			}
-		});
-
-		token = token.slice(0, -1);
-		token += "";
-
-		searchParams = new URLSearchParams();
-		searchParams.set("r", token);
-		window.location = '#' + searchParams.toString();
-	}
-
-};
-
-const tabsApp = {
-	init: function () {
+	initTabs: function () {
 		const tabs = document.querySelectorAll("[data-tab]");
 		const tabPanels = document.querySelectorAll("[data-tab-panel]");
 
@@ -614,6 +639,8 @@ const tabsApp = {
 
 				// get the tab id
 				const tabId = tab.getAttribute("data-tab");
+
+				this.sort = tabId;
 
 				// remove active class from all tabs
 				tabs.forEach((tab) => {
@@ -634,30 +661,126 @@ const tabsApp = {
 			});
 		});
 	},
-};
 
-const toggleApp = {
-	init: function () {
-		const toggles = document.querySelectorAll("[data-toggle]");
-		toggles.forEach((toggle) => {
-			toggle.addEventListener("click", (e) => {
+	initFiltersCurated: function () {
+		const filters_elements = document.querySelectorAll("[data-filter-curated]");
+
+		filters_elements.forEach((filter_element) => {
+			filter_element.addEventListener("change", (e) => {
+				var activities = document.querySelectorAll("[data-activity-curated]");
+				var selected_filters = [];
+
 				e.preventDefault();
 
-				// toggle the toggles is-open class
-				toggle.classList.toggle("toggle--is-open");
-
-				// get the target
-				const target = toggle.getAttribute("data-toggle");
-				const targetElements = document.querySelectorAll(`[data-toggle-target="${target}"]`);
-
-				// toggle the target is-open class
-				targetElements.forEach((element) => {
-					element.classList.toggle("toggle__target--is-open");
+				filters_elements.forEach((filter) => {
+					if (filter.checked) {
+						// Add filter to selected filters
+						selected_filters.push(filter.value);
+					}
 				});
+
+				// Add hidden class to everything in activities
+				activities.forEach((activity) => {
+					activity.classList.remove("hidden");
+					// Loop through classes of activity
+					var classes = activity.classList;
+					var show = true;
+					classes.forEach((activity_class) => {
+						if (!selected_filters.includes(activity_class)) {
+							show = false;
+						}
+					});
+					// If show is false, hide the activity
+					if (!show) {
+						activity.classList.add("hidden");
+					}
+				})
+
 			});
 		});
 	},
+
+	initFiltersAll: function () {
+		const filters_elements = document.querySelectorAll("[data-filter-all]");
+
+		filters_elements.forEach((filter_element) => {
+			filter_element.addEventListener("change", (e) => {
+				var activities = document.querySelectorAll("[data-activity-all]");
+				var selected_filters = [];
+
+				e.preventDefault();
+
+				filters_elements.forEach((filter) => {
+					if (filter.checked) {
+						// Add filter to selected filters
+						selected_filters.push(filter.value);
+					}
+				});
+
+				// Add hidden class to everything in activities
+				activities.forEach((activity) => {
+					activity.classList.remove("hidden");
+					// Loop through classes of activity
+					var classes = activity.classList;
+					var show = true;
+					classes.forEach((activity_class) => {
+						if (!selected_filters.includes(activity_class)) {
+							show = false;
+						}
+					});
+					// If show is false, hide the activity
+					if (!show) {
+						activity.classList.add("hidden");
+					}
+				})
+
+			});
+		});
+	},
+
+
+	buildToken: function () {
+		let token = "";
+
+		this.quiz.forEach((item, index) => {
+			if (item.weighting) {
+				token += index + "-" + item.answer + ".";
+			}
+		});
+
+		token = token.slice(0, -1);
+		token += "";
+
+		searchParams = new URLSearchParams();
+		searchParams.set("r", token);
+		window.location = '#' + searchParams.toString();
+	}
+
 };
+
+
+// const toggleApp = {
+// 	init: function () {
+// 		const toggles = document.querySelectorAll("[data-toggle]");
+// 		toggles.forEach((toggle) => {
+// 			toggle.addEventListener("click", (e) => {
+// 				e.preventDefault();
+
+// 				// toggle the toggles is-open class
+// 				toggle.classList.toggle("toggle--is-open");
+
+// 				// get the target
+// 				const target = toggle.getAttribute("data-toggle");
+// 				const targetElements = document.querySelectorAll(`[data-toggle-target="${target}"]`);
+
+// 				// toggle the target is-open class
+// 				targetElements.forEach((element) => {
+// 					element.classList.toggle("toggle__target--is-open");
+// 				});
+// 			});
+// 		});
+// 	},
+// };
 
 const tooltipApp = {
 	init: function () {
