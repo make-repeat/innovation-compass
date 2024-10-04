@@ -31,12 +31,15 @@ const quizApp = {
 			this.initFiltersCurated();
 			this.initFiltersAll();
 			// toggleApp.init();
-			// tooltipApp.init();
+			tooltipApp.init();
 		});
 	},
 
 	checkToken: function () {
 		var token = this.getQueryVariable('r');
+		if (!token) {
+			return;
+		}
 
 		var answers = token.split('.');
 		var answers_array = [];
@@ -276,8 +279,6 @@ const quizApp = {
 		this.hideElement(this.hooks.templates.title);
 		this.showElement(this.hooks.templates.results);
 
-		console.log("renderResults", this.blocks, this.blocks.length);
-
 		this.hooks.hands.forEach((hand) => {
 			hand.addEventListener("click", () => {
 				this.hooks.hands.forEach((hand) => {
@@ -448,12 +449,12 @@ const quizApp = {
 		// });
 
 		// Loop through the quiz and randomly
-		// asssign an answer value from 1-5
-		// this.quiz.forEach((item) => {
-		// 	if (item.weighting) {
-		// 		item.answer = Math.floor(Math.random() * 4) + 1;
-		// 	}
-		// });
+		// asssign an answer value from 1 - 5
+		this.quiz.forEach((item) => {
+			if (item.weighting) {
+				item.answer = Math.floor(Math.random() * 5) + 1;
+			}
+		});
 
 		this.doCalculations();
 
@@ -464,6 +465,8 @@ const quizApp = {
 		this.quiz.forEach((item) => {
 			if (item.weighting) {
 				item.priority = item.answer * item.weighting;
+				item.priority_name = this.getPriority(item.priority);
+				item.preparedness = this.getPreparedness(item.answer);
 				this.blocks[item.building_block].items.push(item);
 			}
 		});
@@ -505,22 +508,47 @@ const quizApp = {
 
 		this.activities.sort(this.prioritySort);
 
+		// Build activity groups
+		let html = '';
+		let previous = {
+			priority: 0
+		}
+
 		this.activities.forEach((activity, index) => {
-			let html = this.buildActivity('curated', activity);
+			if (activity.priority_name != previous.priority_name) {
+				html = this.buildActivityGroup('curated', activity);
+				this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
+			}
+
+			html = this.buildActivity('curated', activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
 			this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
+
+			previous = activity;
 		});
 
 		this.activities.sort(this.preparednessSort);
 
+		html = '';
+		previous = {
+			priority: 0
+		}
 		this.activities.forEach((activity, index) => {
-			let html = this.buildActivity('all', activity);
+
+			if (activity.answer != previous.answer) {
+				html = this.buildActivityGroup('all', activity);
+				this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
+			}
+
+			html = this.buildActivity('all', activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
 			this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
+
+			previous = activity;
 		});
 	},
 
@@ -535,10 +563,10 @@ const quizApp = {
 	},
 
 	preparednessSort: function (a, b) {
-		if (a.answer > b.answer) {
+		if (a.answer < b.answer) {
 			return -1;
 		}
-		if (a.answer < b.answer) {
+		if (a.answer > b.answer) {
 			return 1;
 		}
 		return 0;
@@ -546,11 +574,11 @@ const quizApp = {
 
 	getPriority: function (average) {
 		if (average <= 3) {
-			return "low_priority";
+			return "low";
 		} else if (average <= 7) {
-			return "medium_priority";
+			return "medium";
 		} else {
-			return "high_priority";
+			return "high";
 		}
 	},
 
@@ -607,7 +635,7 @@ const quizApp = {
 								<div
 									style="color: #5d62f4"
 									class="bb-tag-text navy-tag-text block-display">
-									${activity.category}-${activity.priority}
+									${activity.category}
 								</div>
 								<div
 									class="bb-activity-tile-title">
@@ -624,6 +652,35 @@ const quizApp = {
 						</div>
 					</div>
 				</div>
+			</div>`;
+
+		return html;
+	},
+
+	buildActivityGroup: function (type, activity) {
+		if (type == "curated") {
+			var headline = "The following activities are a <strong>" + activity.priority_name + "</strong> recommendation for you";
+			var activity_group_id = activity.priority_name;
+		} else {
+			// replace underscores with spaces
+			preparedness = activity.preparedness.replace(/_/g, ' ');
+			var headline = "You indicated that you are <strong>" + preparedness + "</strong> for the following activities";
+			var activity_group_id = activity.preparedness;
+		}
+		let html = `
+			<div class="activity-group" activity-group-id="${activity_group_id}">
+				<button data-tooltip class="activity-group__title tooltip">
+					<div>
+						${headline}
+						<img alt="" src="images/icons/info.svg" />
+						<div class="tooltip__anchor">
+							<article data-tooltip-content class="hidden tooltip__content">
+								<h1>High Recommendation</h1>
+								<p>Your chart results are based on your quiz results and the importance assigned by a cohort of co-creators.</p>
+							</article>
+						</div>
+					</div>
+				</button>
 			</div>`;
 
 		return html;
@@ -672,6 +729,15 @@ const quizApp = {
 
 				e.preventDefault();
 
+				if (e.target.name == "preparedness" || e.target.name == "priority") {
+					activity_group = document.querySelector(`[activity-group-id="${e.target.value}"]`);
+					if (e.target.checked) {
+						activity_group.classList.remove("hidden");
+					} else {
+						activity_group.classList.add("hidden");
+					}
+				}
+
 				filters_elements.forEach((filter) => {
 					if (filter.checked) {
 						// Add filter to selected filters
@@ -709,6 +775,14 @@ const quizApp = {
 				var selected_filters = [];
 
 				e.preventDefault();
+				if (e.target.name == "preparedness" || e.target.name == "priority") {
+					activity_group = document.querySelector(`[activity-group-id="${e.target.value}"]`);
+					if (e.target.checked) {
+						activity_group.classList.remove("hidden");
+					} else {
+						activity_group.classList.add("hidden");
+					}
+				}
 
 				filters_elements.forEach((filter) => {
 					if (filter.checked) {
@@ -737,7 +811,6 @@ const quizApp = {
 			});
 		});
 	},
-
 
 	buildToken: function () {
 		let token = "";
