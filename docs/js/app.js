@@ -200,13 +200,13 @@ const quizApp = {
 		if (this.currentBlock > 0) {
 			this.currentBlock--;
 		} else {
-			this.currentBlock = 0;
+			this.currentBlock = this.blockKeys.length;
 		}
 		this.renderBlock();
 	},
 
 	nextBlock: function () {
-		if (this.currentBlock < this.blockKeys.length - 1) {
+		if (this.currentBlock < this.blockKeys.length) {
 			this.currentBlock++;
 		} else {
 			this.currentBlock = 0;
@@ -310,29 +310,39 @@ const quizApp = {
 	},
 
 	renderBlock: function () {
-		// Hide the intro slide
-		this.hideElement(this.hooks.templates.slide.intro);
-		// Show the single slide
-		this.showElement(this.hooks.templates.slide.single);
 
-		// Get the current block
-		const block = this.blocks[this.blockKeys[this.currentBlock]];
+		if (this.currentBlock == 0) {
+			this.hideElement(this.hooks.templates.slide.single);
+			this.showElement(this.hooks.templates.slide.intro);
+			this.hooks.hands.forEach((hand) => {
+				hand.classList.remove("is--focused");
+			})
+		} else {
+			this.hideElement(this.hooks.templates.slide.intro);
+			this.showElement(this.hooks.templates.slide.single);
 
-		// Set the relevant hand to be focused
-		this.hooks.hands.forEach((hand) => {
-			hand.classList.remove("is--focused");
+			var actualIndex = this.currentBlock - 1;
+			console.log(this.blockKeys[actualIndex]);
 
-			const handBlockId = hand.getAttribute("data-hand-block-id");
-			if (handBlockId === this.blockKeys[this.currentBlock]) {
-				hand.classList.add("is--focused");
-			}
-		});
+			// Get the current block
+			const block = this.blocks[this.blockKeys[actualIndex]];
 
-		// Output data to block
-		this.hooks.templates.slide.eyebrow.innerHTML = block.category;
-		this.hooks.templates.slide.title.innerHTML = block.title;
-		this.hooks.templates.slide.body.innerHTML = block.description;
-		this.hooks.templates.slide.priority.innerHTML = block.priority;
+			// Set the relevant hand to be focused
+			this.hooks.hands.forEach((hand) => {
+				hand.classList.remove("is--focused");
+
+				const handBlockId = hand.getAttribute("data-hand-block-id");
+				if (handBlockId === this.blockKeys[actualIndex]) {
+					hand.classList.add("is--focused");
+				}
+			});
+
+			// Output data to block
+			this.hooks.templates.slide.eyebrow.innerHTML = block.category;
+			this.hooks.templates.slide.title.innerHTML = block.title;
+			this.hooks.templates.slide.body.innerHTML = block.description;
+			this.hooks.templates.slide.priority.innerHTML = block.priority;
+		}
 	},
 
 	setTheme: function (category, type) {
