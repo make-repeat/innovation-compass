@@ -334,7 +334,6 @@ const quizApp = {
 			var actualIndex = this.currentBlock - 1;
 			// Get the current block
 			const block = this.blocks[this.blockKeys[actualIndex]];
-			console.log(this.blockKeys);
 
 			// Set the relevant hand to be focused
 			this.hooks.hands.forEach((hand) => {
