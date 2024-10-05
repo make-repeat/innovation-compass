@@ -26,12 +26,49 @@ const quizApp = {
 
 		this.injectHtml().then(() => {
 			this.initHooks();
-			this.loadQuizData();
-			this.loadBlocksData();
-			tabsApp.init();
+			this.loadAllData();
+			this.initTabs();
+			this.initFiltersCurated();
+			this.initFiltersAll();
 			toggleApp.init();
 			tooltipApp.init();
 		});
+	},
+
+	checkToken: function () {
+		var token = this.getQueryVariable('r');
+		if (!token) {
+			return;
+		}
+
+		var answers = token.split('.');
+		var answers_array = [];
+		for (var i = 0; i < answers.length; i++) {
+			var parts = answers[i].split('-');
+			answers_array[parts[0]] = parts[1];
+		}
+
+		this.quiz.forEach((item, index) => {
+			if (item.weighting) {
+				this.quiz[index].answer = answers_array[index];
+			}
+		});
+
+		if (token) {
+			this.finishQuiz();
+		}
+	},
+
+	getQueryVariable: function (variable) {
+		var query = window.location.hash.substring(1);
+		var vars = query.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			if (decodeURIComponent(pair[0]) == variable) {
+				return decodeURIComponent(pair[1]);
+			}
+		}
+		console.log('Query variable %s not found', variable);
 	},
 
 	initHooks: function () {
@@ -60,7 +97,10 @@ const quizApp = {
 				body: document.querySelector("[data-slide-body]"),
 				priority: document.querySelector("[data-slide-priority]"),
 			},
-			activities: document.querySelector("[data-activities]"),
+			activities: {
+				curated: document.querySelector("[data-activities-curated]"),
+				all: document.querySelector("[data-activities-all]"),
+			},
 		};
 
 		// Buttons
@@ -113,6 +153,7 @@ const quizApp = {
 
 		// Hands
 		this.hooks.hands = document.querySelectorAll("[data-hand]");
+		this.hooks.hands_labels = document.querySelectorAll("[data-hand-label]");
 
 		// Errors
 		this.hooks.errorMessage = document.querySelector("[data-error-message]");
@@ -160,13 +201,13 @@ const quizApp = {
 		if (this.currentBlock > 0) {
 			this.currentBlock--;
 		} else {
-			this.currentBlock = 0;
+			this.currentBlock = this.blockKeys.length;
 		}
 		this.renderBlock();
 	},
 
 	nextBlock: function () {
-		if (this.currentBlock < this.blockKeys.length - 1) {
+		if (this.currentBlock < this.blockKeys.length) {
 			this.currentBlock++;
 		} else {
 			this.currentBlock = 0;
@@ -239,8 +280,6 @@ const quizApp = {
 		this.hideElement(this.hooks.templates.title);
 		this.showElement(this.hooks.templates.results);
 
-		console.log("renderResults", this.blocks, this.blocks.length);
-
 		this.hooks.hands.forEach((hand) => {
 			hand.addEventListener("click", () => {
 				this.hooks.hands.forEach((hand) => {
@@ -260,6 +299,15 @@ const quizApp = {
 			});
 		});
 
+		this.hooks.hands_labels.forEach((hand_label) => {
+			hand_label.addEventListener("click", () => {
+				// Get index
+				const index = hand_label.getAttribute("data-hand-index-id");
+				this.currentBlock = (index * 1) + 1;
+				this.renderBlock();
+			});
+		});
+
 		// Loop through the blocks and render the results
 		for (let block in this.blocks) {
 			const hand = document.querySelector("[data-hand-block-id='" + block + "']");
@@ -272,29 +320,37 @@ const quizApp = {
 	},
 
 	renderBlock: function () {
-		// Hide the intro slide
-		this.hideElement(this.hooks.templates.slide.intro);
-		// Show the single slide
-		this.showElement(this.hooks.templates.slide.single);
 
-		// Get the current block
-		const block = this.blocks[this.blockKeys[this.currentBlock]];
+		if (this.currentBlock == 0) {
+			this.hideElement(this.hooks.templates.slide.single);
+			this.showElement(this.hooks.templates.slide.intro);
+			this.hooks.hands.forEach((hand) => {
+				hand.classList.remove("is--focused");
+			})
+		} else {
+			this.hideElement(this.hooks.templates.slide.intro);
+			this.showElement(this.hooks.templates.slide.single);
 
-		// Set the relevant hand to be focused
-		this.hooks.hands.forEach((hand) => {
-			hand.classList.remove("is--focused");
+			var actualIndex = this.currentBlock - 1;
+			// Get the current block
+			const block = this.blocks[this.blockKeys[actualIndex]];
 
-			const handBlockId = hand.getAttribute("data-hand-block-id");
-			if (handBlockId === this.blockKeys[this.currentBlock]) {
-				hand.classList.add("is--focused");
-			}
-		});
+			// Set the relevant hand to be focused
+			this.hooks.hands.forEach((hand) => {
+				hand.classList.remove("is--focused");
 
-		// Output data to block
-		this.hooks.templates.slide.eyebrow.innerHTML = block.category;
-		this.hooks.templates.slide.title.innerHTML = block.title;
-		this.hooks.templates.slide.body.innerHTML = block.description;
-		this.hooks.templates.slide.priority.innerHTML = block.priority;
+				const handBlockId = hand.getAttribute("data-hand-block-id");
+				if (handBlockId === this.blockKeys[actualIndex]) {
+					hand.classList.add("is--focused");
+				}
+			});
+
+			// Output data to block
+			this.hooks.templates.slide.eyebrow.innerHTML = block.category;
+			this.hooks.templates.slide.title.innerHTML = block.title;
+			this.hooks.templates.slide.body.innerHTML = block.description;
+			this.hooks.templates.slide.priority.innerHTML = block.priority;
+		}
 	},
 
 	setTheme: function (category, type) {
@@ -332,24 +388,30 @@ const quizApp = {
 		}
 	},
 
-	loadQuizData: async function () {
-		try {
-			const response = await fetch(this.baseUrl + "quiz.json");
-			const data = await response.json();
-			this.quiz = data;
-			this.makeSections();
-		} catch (error) {
-			console.error("Error loading quiz data:", error);
-		}
-	},
+	loadAllData: async function () {
+		const urls = {
+			quiz: this.baseUrl + "quiz.json",
+			blocks: this.baseUrl + "blocks.json"
+		};
 
-	loadBlocksData: async function () {
 		try {
-			const response = await fetch(this.baseUrl + "blocks.json");
-			const data = await response.json();
-			this.blocks = data;
+			const responses = await Promise.all(
+				Object.entries(urls).map(async ([key, url]) => {
+					const response = await fetch(url);
+					const data = await response.json();
+					return [key, data];
+				})
+			);
+
+			const result = Object.fromEntries(responses);
+			this.quiz = result.quiz;
+			this.blocks = result.blocks;
+			this.makeSections();
+			this.checkToken();
+			return true;
 		} catch (error) {
-			console.error("Error loading blocks data:", error);
+			console.error('Error fetching data:', error);
+			throw error;
 		}
 	},
 
@@ -363,6 +425,7 @@ const quizApp = {
 				sections[item.category]++;
 			}
 		});
+		console.log(this.sections);
 		this.sections = sections;
 	},
 
@@ -398,21 +461,32 @@ const quizApp = {
 	},
 
 	finishQuiz: function () {
+
+		// window.gtag("event", "quiz", {
+		// 	event_category: 'complete',
+		// 	event_label: '{1:3,2:1,3:5}',
+		// 	event_value: "1",
+		// });
+
 		// Loop through the quiz and randomly
-		// asssign an answer value from 1-5
+		// asssign an answer value from 1 - 5
 		this.quiz.forEach((item) => {
 			if (item.weighting) {
-				item.answer = Math.floor(Math.random() * 4) + 1;
+				item.answer = Math.floor(Math.random() * 5) + 1;
 			}
 		});
 
 		this.doCalculations();
+
+		this.buildToken();
 	},
 
 	doCalculations: function () {
 		this.quiz.forEach((item) => {
 			if (item.weighting) {
 				item.priority = item.answer * item.weighting;
+				item.priority_name = this.getPriority(item.priority);
+				item.preparedness = this.getPreparedness(item.answer);
 				this.blocks[item.building_block].items.push(item);
 			}
 		});
@@ -452,22 +526,67 @@ const quizApp = {
 			}
 		});
 
-		this.activities.sort(this.activitySort);
+		this.activities.sort(this.prioritySort);
+
+		// Build activity groups
+		let html = '';
+		let previous = {
+			priority: 0
+		}
 
 		this.activities.forEach((activity, index) => {
-			let html = this.buildActivity(activity);
+			if (activity.priority_name != previous.priority_name) {
+				html = this.buildActivityGroup('curated', activity);
+				this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
+			}
+
+			html = this.buildActivity('curated', activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
-			this.hooks.templates.activities.insertAdjacentHTML("beforeend", html);
+			this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
+
+			previous = activity;
+		});
+
+		this.activities.sort(this.preparednessSort);
+
+		html = '';
+		previous = {
+			priority: 0
+		}
+		this.activities.forEach((activity, index) => {
+
+			if (activity.answer != previous.answer) {
+				html = this.buildActivityGroup('all', activity);
+				this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
+			}
+
+			html = this.buildActivity('all', activity);
+			// this.hooks.templates.activities.innerHTML += html;
+			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
+			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
+			this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
+
+			previous = activity;
 		});
 	},
 
-	activitySort: function (a, b) {
+	prioritySort: function (a, b) {
 		if (a.priority > b.priority) {
 			return -1;
 		}
 		if (a.priority < b.priority) {
+			return 1;
+		}
+		return 0;
+	},
+
+	preparednessSort: function (a, b) {
+		if (a.answer < b.answer) {
+			return -1;
+		}
+		if (a.answer > b.answer) {
 			return 1;
 		}
 		return 0;
@@ -483,6 +602,22 @@ const quizApp = {
 		}
 	},
 
+	getPreparedness: function (answer) {
+		if (answer == 1) {
+			return "unprepared";
+		} else if (answer == 2) {
+			return "somewhat_prepared";
+		} else if (answer == 3) {
+			return "adequately_prepared";
+		} else if (answer == 4) {
+			return "very_prepared";
+		} else if (answer == 5) {
+			return "extremely_prepared";
+		} else {
+			return "unknown_prepareness";
+		}
+	},
+
 	injectHtml: function () {
 		return fetch(this.baseUrl + "templates.html")
 			.then((res) => res.text())
@@ -494,12 +629,26 @@ const quizApp = {
 			.catch((e) => console.error(e));
 	},
 
-	// Build an activity
-	buildActivity: function (activity) {
+	buildActivity: function (type, activity) {
+		let priority = this.getPriority(activity.priority);
+		let preparedness = this.getPreparedness(activity.answer);
+		if (type == "curated") {
+			var classes = activity.building_block + " " + priority;
+		} else {
+			var classes = activity.building_block + " " + preparedness;
+		}
+		if (activity.category == 'impact') {
+			var header_class = "text-purple";
+		} else if (activity.category == 'community') {
+			var header_class = "text-green";
+		} else {
+			var header_class = "text-orange";
+		}
 		let html = `
 			<div
 				role="list"
-				class="">
+				class="${classes}"
+				data-activity-${type}>
 				<div
 					role="listitem"
 					class="collection-item-4 w-dyn-item w-col w-col-4">
@@ -510,9 +659,8 @@ const quizApp = {
 							<div
 								class="bb-activity-tile-top-grid">
 								<div
-									style="color: #5d62f4"
-									class="bb-tag-text navy-tag-text block-display">
-									${activity.category}-${activity.priority}
+									class="bb-tag-text block-display ${header_class}">
+									${activity.category}
 								</div>
 								<div
 									class="bb-activity-tile-title">
@@ -533,10 +681,37 @@ const quizApp = {
 
 		return html;
 	},
-};
 
-const tabsApp = {
-	init: function () {
+	buildActivityGroup: function (type, activity) {
+		if (type == "curated") {
+			var headline = "The following activities are a <strong>" + activity.priority_name + "</strong> recommendation for you";
+			var activity_group_id = activity.priority_name;
+		} else {
+			// replace underscores with spaces
+			preparedness = activity.preparedness.replace(/_/g, ' ');
+			var headline = "You indicated that you are <strong>" + preparedness + "</strong> for the following activities";
+			var activity_group_id = activity.preparedness;
+		}
+		let html = `
+			<div class="activity-group" activity-group-id="${activity_group_id}">
+				<button data-tooltip class="activity-group__title tooltip">
+					<div>
+						${headline}
+						<img alt="" src="images/icons/info.svg" />
+						<div class="tooltip__anchor">
+							<article data-tooltip-content class="hidden tooltip__content">
+								<h1>High Recommendation</h1>
+								<p>Your chart results are based on your quiz results and the importance assigned by a cohort of co-creators.</p>
+							</article>
+						</div>
+					</div>
+				</button>
+			</div>`;
+
+		return html;
+	},
+
+	initTabs: function () {
 		const tabs = document.querySelectorAll("[data-tab]");
 		const tabPanels = document.querySelectorAll("[data-tab-panel]");
 
@@ -546,6 +721,8 @@ const tabsApp = {
 
 				// get the tab id
 				const tabId = tab.getAttribute("data-tab");
+
+				this.sort = tabId;
 
 				// remove active class from all tabs
 				tabs.forEach((tab) => {
@@ -566,6 +743,118 @@ const tabsApp = {
 			});
 		});
 	},
+
+	initFiltersCurated: function () {
+		const filters_elements = document.querySelectorAll("[data-filter-curated]");
+
+		filters_elements.forEach((filter_element) => {
+			filter_element.addEventListener("change", (e) => {
+				var activities = document.querySelectorAll("[data-activity-curated]");
+				var selected_filters = [];
+
+				e.preventDefault();
+
+				if (e.target.name == "preparedness" || e.target.name == "priority") {
+					activity_group = document.querySelector(`[activity-group-id="${e.target.value}"]`);
+					if (e.target.checked) {
+						activity_group.classList.remove("hidden");
+					} else {
+						activity_group.classList.add("hidden");
+					}
+				}
+
+				filters_elements.forEach((filter) => {
+					if (filter.checked) {
+						// Add filter to selected filters
+						selected_filters.push(filter.value);
+					}
+				});
+
+				// Add hidden class to everything in activities
+				activities.forEach((activity) => {
+					activity.classList.remove("hidden");
+					// Loop through classes of activity
+					var classes = activity.classList;
+					var show = true;
+					classes.forEach((activity_class) => {
+						if (!selected_filters.includes(activity_class)) {
+							show = false;
+						}
+					});
+					// If show is false, hide the activity
+					if (!show) {
+						activity.classList.add("hidden");
+					}
+				})
+
+			});
+		});
+	},
+
+	initFiltersAll: function () {
+		const filters_elements = document.querySelectorAll("[data-filter-all]");
+
+		filters_elements.forEach((filter_element) => {
+			filter_element.addEventListener("change", (e) => {
+				var activities = document.querySelectorAll("[data-activity-all]");
+				var selected_filters = [];
+
+				e.preventDefault();
+				if (e.target.name == "preparedness" || e.target.name == "priority") {
+					activity_group = document.querySelector(`[activity-group-id="${e.target.value}"]`);
+					if (e.target.checked) {
+						activity_group.classList.remove("hidden");
+					} else {
+						activity_group.classList.add("hidden");
+					}
+				}
+
+				filters_elements.forEach((filter) => {
+					if (filter.checked) {
+						// Add filter to selected filters
+						selected_filters.push(filter.value);
+					}
+				});
+
+				// Add hidden class to everything in activities
+				activities.forEach((activity) => {
+					activity.classList.remove("hidden");
+					// Loop through classes of activity
+					var classes = activity.classList;
+					var show = true;
+					classes.forEach((activity_class) => {
+						if (!selected_filters.includes(activity_class)) {
+							show = false;
+						}
+					});
+					// If show is false, hide the activity
+					if (!show) {
+						activity.classList.add("hidden");
+					}
+				})
+
+			});
+		});
+	},
+
+	buildToken: function () {
+		let token = "";
+
+		this.quiz.forEach((item, index) => {
+			if (item.weighting) {
+				token += index + "-" + item.answer + ".";
+			}
+		});
+
+		token = token.slice(0, -1);
+		token += "";
+
+		searchParams = new URLSearchParams();
+		searchParams.set("r", token);
+		searchParams.set("gid", GID);
+		window.location = '#' + searchParams.toString();
+	}
+
 };
 
 const toggleApp = {
