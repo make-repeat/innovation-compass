@@ -30,7 +30,7 @@ const quizApp = {
 			this.initTabs();
 			this.initFiltersCurated();
 			this.initFiltersAll();
-			// toggleApp.init();
+			toggleApp.init();
 			tooltipApp.init();
 		});
 	},
@@ -322,7 +322,6 @@ const quizApp = {
 			this.showElement(this.hooks.templates.slide.single);
 
 			var actualIndex = this.currentBlock - 1;
-			console.log(this.blockKeys[actualIndex]);
 
 			// Get the current block
 			const block = this.blocks[this.blockKeys[actualIndex]];
@@ -398,6 +397,7 @@ const quizApp = {
 			const result = Object.fromEntries(responses);
 			this.quiz = result.quiz;
 			this.blocks = result.blocks;
+			this.makeSections();
 			this.checkToken();
 			return true;
 		} catch (error) {
@@ -416,6 +416,7 @@ const quizApp = {
 				sections[item.category]++;
 			}
 		});
+		console.log(this.sections);
 		this.sections = sections;
 	},
 
@@ -619,7 +620,6 @@ const quizApp = {
 			.catch((e) => console.error(e));
 	},
 
-	// Build an activity
 	buildActivity: function (type, activity) {
 		let priority = this.getPriority(activity.priority);
 		let preparedness = this.getPreparedness(activity.answer);
@@ -627,6 +627,13 @@ const quizApp = {
 			var classes = activity.building_block + " " + priority;
 		} else {
 			var classes = activity.building_block + " " + preparedness;
+		}
+		if (activity.category == 'impact') {
+			var header_class = "text-purple";
+		} else if (activity.category == 'community') {
+			var header_class = "text-green";
+		} else {
+			var header_class = "text-orange";
 		}
 		let html = `
 			<div
@@ -643,8 +650,7 @@ const quizApp = {
 							<div
 								class="bb-activity-tile-top-grid">
 								<div
-									style="color: #5d62f4"
-									class="bb-tag-text navy-tag-text block-display">
+									class="bb-tag-text block-display ${header_class}">
 									${activity.category}
 								</div>
 								<div
@@ -841,29 +847,28 @@ const quizApp = {
 
 };
 
+const toggleApp = {
+	init: function () {
+		const toggles = document.querySelectorAll("[data-toggle]");
+		toggles.forEach((toggle) => {
+			toggle.addEventListener("click", (e) => {
+				e.preventDefault();
 
-// const toggleApp = {
-// 	init: function () {
-// 		const toggles = document.querySelectorAll("[data-toggle]");
-// 		toggles.forEach((toggle) => {
-// 			toggle.addEventListener("click", (e) => {
-// 				e.preventDefault();
+				// toggle the toggles is-open class
+				toggle.classList.toggle("toggle--is-open");
 
-// 				// toggle the toggles is-open class
-// 				toggle.classList.toggle("toggle--is-open");
+				// get the target
+				const target = toggle.getAttribute("data-toggle");
+				const targetElements = document.querySelectorAll(`[data-toggle-target="${target}"]`);
 
-// 				// get the target
-// 				const target = toggle.getAttribute("data-toggle");
-// 				const targetElements = document.querySelectorAll(`[data-toggle-target="${target}"]`);
-
-// 				// toggle the target is-open class
-// 				targetElements.forEach((element) => {
-// 					element.classList.toggle("toggle__target--is-open");
-// 				});
-// 			});
-// 		});
-// 	},
-// };
+				// toggle the target is-open class
+				targetElements.forEach((element) => {
+					element.classList.toggle("toggle__target--is-open");
+				});
+			});
+		});
+	},
+};
 
 const tooltipApp = {
 	init: function () {
