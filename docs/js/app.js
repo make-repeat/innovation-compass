@@ -153,6 +153,7 @@ const quizApp = {
 
 		// Hands
 		this.hooks.hands = document.querySelectorAll("[data-hand]");
+		this.hooks.hands_labels = document.querySelectorAll("[data-hand-label]");
 
 		// Errors
 		this.hooks.errorMessage = document.querySelector("[data-error-message]");
@@ -298,6 +299,15 @@ const quizApp = {
 			});
 		});
 
+		this.hooks.hands_labels.forEach((hand_label) => {
+			hand_label.addEventListener("click", () => {
+				// Get index
+				const index = hand_label.getAttribute("data-hand-index-id");
+				this.currentBlock = (index * 1) + 1;
+				this.renderBlock();
+			});
+		});
+
 		// Loop through the blocks and render the results
 		for (let block in this.blocks) {
 			const hand = document.querySelector("[data-hand-block-id='" + block + "']");
@@ -322,9 +332,9 @@ const quizApp = {
 			this.showElement(this.hooks.templates.slide.single);
 
 			var actualIndex = this.currentBlock - 1;
-
 			// Get the current block
 			const block = this.blocks[this.blockKeys[actualIndex]];
+			console.log(this.blockKeys);
 
 			// Set the relevant hand to be focused
 			this.hooks.hands.forEach((hand) => {
@@ -842,6 +852,7 @@ const quizApp = {
 
 		searchParams = new URLSearchParams();
 		searchParams.set("r", token);
+		searchParams.set("gid", GID);
 		window.location = '#' + searchParams.toString();
 	}
 
