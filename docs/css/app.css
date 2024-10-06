@@ -1,4 +1,4 @@
-@import url("_variables.css");
+@import url("variables.css");
 @import url("utilities.css");
 @import url("clock.css");
 @import url("text-colors.css");
@@ -84,6 +84,7 @@
 }
 
 .quiz__progress {
+	padding: 0 16px;
 	min-height: 72px;
 	text-transform: uppercase;
 }
@@ -122,6 +123,7 @@
 }
 
 .quiz__card-wrap {
+	padding: 0 16px;
 }
 
 .quiz__card {
@@ -290,6 +292,24 @@
 	line-height: 19.6px;
 }
 
+.results-summary .button .button__arrow-left {
+	width: 12px;
+	height: 20px;
+	background-image: url("../images/icons/arrow-left.svg");
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+}
+
+.results-summary .button .button__arrow-right {
+	width: 12px;
+	height: 20px;
+	background-image: url("../images/icons/arrow-right.svg");
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+}
+
 .quiz__results-tabs {
 	margin: 24px 0 0 0;
 	padding: 0 16px;
@@ -372,6 +392,12 @@
 
 .toggle__indicator {
 	transition: transform 0.3s;
+	width: 12px;
+	height: 20px;
+	background-image: url("../images/icons/arrow-down.svg");
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
 }
 
 .toggle.toggle--is-open .toggle__indicator {
@@ -493,6 +519,7 @@
 
 .quiz__activities .activity-group {
 	margin-bottom: 20px;
+	clear: both;
 }
 
 .quiz__activities .activity-group__title {
@@ -565,6 +592,7 @@
 
 	.quiz__progress {
 		grid-column: span 3;
+		padding-left: 40px;
 	}
 
 	.quiz__card-wrap {

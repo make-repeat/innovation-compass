@@ -36,15 +36,15 @@ const quizApp = {
 	},
 
 	checkToken: function () {
-		var token = this.getQueryVariable('r');
+		var token = this.getQueryVariable("r");
 		if (!token) {
 			return;
 		}
 
-		var answers = token.split('.');
+		var answers = token.split(".");
 		var answers_array = [];
 		for (var i = 0; i < answers.length; i++) {
-			var parts = answers[i].split('-');
+			var parts = answers[i].split("-");
 			answers_array[parts[0]] = parts[1];
 		}
 
@@ -61,14 +61,14 @@ const quizApp = {
 
 	getQueryVariable: function (variable) {
 		var query = window.location.hash.substring(1);
-		var vars = query.split('&');
+		var vars = query.split("&");
 		for (var i = 0; i < vars.length; i++) {
-			var pair = vars[i].split('=');
+			var pair = vars[i].split("=");
 			if (decodeURIComponent(pair[0]) == variable) {
 				return decodeURIComponent(pair[1]);
 			}
 		}
-		console.log('Query variable %s not found', variable);
+		console.log("Query variable %s not found", variable);
 	},
 
 	initHooks: function () {
@@ -292,7 +292,7 @@ const quizApp = {
 				const selectedHandId = hand.getAttribute("data-hand-block-id");
 				for (let block in this.blocks) {
 					if (block === selectedHandId) {
-						this.currentBlock = this.blockKeys.indexOf(block);
+						this.currentBlock = this.blockKeys.indexOf(block) + 1;
 						this.renderBlock();
 					}
 				}
@@ -303,7 +303,7 @@ const quizApp = {
 			hand_label.addEventListener("click", () => {
 				// Get index
 				const index = hand_label.getAttribute("data-hand-index-id");
-				this.currentBlock = (index * 1) + 1;
+				this.currentBlock = index * 1 + 1;
 				this.renderBlock();
 			});
 		});
@@ -317,16 +317,18 @@ const quizApp = {
 				hand.setAttribute("data-hand-reach", average);
 			}
 		}
+
+		// Set the theme (default)
+		this.setTheme(null, null);
 	},
 
 	renderBlock: function () {
-
 		if (this.currentBlock == 0) {
 			this.hideElement(this.hooks.templates.slide.single);
 			this.showElement(this.hooks.templates.slide.intro);
 			this.hooks.hands.forEach((hand) => {
 				hand.classList.remove("is--focused");
-			})
+			});
 		} else {
 			this.hideElement(this.hooks.templates.slide.intro);
 			this.showElement(this.hooks.templates.slide.single);
@@ -385,13 +387,16 @@ const quizApp = {
 				this.hooks.headlines.quizQuestion.style.color = "#3B817E";
 				this.hooks.progress.bar.style.background = "#3B817E";
 				break;
+			default:
+				this.hooks.containers.quiz.style.background = "#fff";
+				break;
 		}
 	},
 
 	loadAllData: async function () {
 		const urls = {
 			quiz: this.baseUrl + "quiz.json",
-			blocks: this.baseUrl + "blocks.json"
+			blocks: this.baseUrl + "blocks.json",
 		};
 
 		try {
@@ -410,7 +415,7 @@ const quizApp = {
 			this.checkToken();
 			return true;
 		} catch (error) {
-			console.error('Error fetching data:', error);
+			console.error("Error fetching data:", error);
 			throw error;
 		}
 	},
@@ -461,7 +466,6 @@ const quizApp = {
 	},
 
 	finishQuiz: function () {
-
 		// window.gtag("event", "quiz", {
 		// 	event_category: 'complete',
 		// 	event_label: '{1:3,2:1,3:5}',
@@ -529,18 +533,18 @@ const quizApp = {
 		this.activities.sort(this.prioritySort);
 
 		// Build activity groups
-		let html = '';
+		let html = "";
 		let previous = {
-			priority: 0
-		}
+			priority: 0,
+		};
 
 		this.activities.forEach((activity, index) => {
 			if (activity.priority_name != previous.priority_name) {
-				html = this.buildActivityGroup('curated', activity);
+				html = this.buildActivityGroup("curated", activity);
 				this.hooks.templates.activities.curated.insertAdjacentHTML("beforeend", html);
 			}
 
-			html = this.buildActivity('curated', activity);
+			html = this.buildActivity("curated", activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
@@ -551,18 +555,17 @@ const quizApp = {
 
 		this.activities.sort(this.preparednessSort);
 
-		html = '';
+		html = "";
 		previous = {
-			priority: 0
-		}
+			priority: 0,
+		};
 		this.activities.forEach((activity, index) => {
-
 			if (activity.answer != previous.answer) {
-				html = this.buildActivityGroup('all', activity);
+				html = this.buildActivityGroup("all", activity);
 				this.hooks.templates.activities.all.insertAdjacentHTML("beforeend", html);
 			}
 
-			html = this.buildActivity('all', activity);
+			html = this.buildActivity("all", activity);
 			// this.hooks.templates.activities.innerHTML += html;
 			// Using innerHTML means that any JavaScript references to the descendants of element will be removed.
 			// The insertAdjacentHTML method does not reparse the element it is invoked on, so it does not corrupt the element.
@@ -637,9 +640,9 @@ const quizApp = {
 		} else {
 			var classes = activity.building_block + " " + preparedness;
 		}
-		if (activity.category == 'impact') {
+		if (activity.category == "impact") {
 			var header_class = "text-purple";
-		} else if (activity.category == 'community') {
+		} else if (activity.category == "community") {
 			var header_class = "text-green";
 		} else {
 			var header_class = "text-orange";
@@ -688,7 +691,7 @@ const quizApp = {
 			var activity_group_id = activity.priority_name;
 		} else {
 			// replace underscores with spaces
-			preparedness = activity.preparedness.replace(/_/g, ' ');
+			preparedness = activity.preparedness.replace(/_/g, " ");
 			var headline = "You indicated that you are <strong>" + preparedness + "</strong> for the following activities";
 			var activity_group_id = activity.preparedness;
 		}
@@ -697,7 +700,7 @@ const quizApp = {
 				<button data-tooltip class="activity-group__title tooltip">
 					<div>
 						${headline}
-						<img alt="" src="images/icons/info.svg" />
+						<div class="tooltip__icon"></div>
 						<div class="tooltip__anchor">
 							<article data-tooltip-content class="hidden tooltip__content">
 								<h1>High Recommendation</h1>
@@ -785,8 +788,7 @@ const quizApp = {
 					if (!show) {
 						activity.classList.add("hidden");
 					}
-				})
-
+				});
 			});
 		});
 	},
@@ -831,8 +833,7 @@ const quizApp = {
 					if (!show) {
 						activity.classList.add("hidden");
 					}
-				})
-
+				});
 			});
 		});
 	},
@@ -852,9 +853,8 @@ const quizApp = {
 		searchParams = new URLSearchParams();
 		searchParams.set("r", token);
 		searchParams.set("gid", GID);
-		window.location = '#' + searchParams.toString();
-	}
-
+		window.location = "#" + searchParams.toString();
+	},
 };
 
 const toggleApp = {
