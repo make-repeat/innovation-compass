@@ -105,9 +105,19 @@
 	z-index: 200;
 }
 
-.hand:hover:before,
-.hand.is--focused:before {
+.hand[data-hand-color="1"]:hover:before,
+.hand[data-hand-color="1"].is--focused:before {
 	border-right-color: var(--color-purple) !important;
+}
+
+.hand[data-hand-color="2"]:hover:before,
+.hand[data-hand-color="2"].is--focused:before {
+	border-right-color: var(--color-green) !important;
+}
+
+.hand[data-hand-color="3"]:hover:before,
+.hand[data-hand-color="3"].is--focused:before {
+	border-right-color: var(--color-orange) !important;
 }
 
 /* Triangle */
